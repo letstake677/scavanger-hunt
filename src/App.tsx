@@ -49,6 +49,40 @@ export default function App() {
   const [showHint, setShowHint] = useState(false);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [isFinished, setIsFinished] = useState(false);
+  const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const [username, setUsername] = useState('');
+
+  useEffect(() => {
+    fetchLeaderboard();
+  }, []);
+
+  const fetchLeaderboard = async () => {
+    try {
+      const res = await fetch('/api/leaderboard');
+      const data = await res.json();
+      setLeaderboard(data);
+    } catch (err) {
+      console.error('Failed to fetch leaderboard:', err);
+    }
+  };
+
+  const updateScore = async () => {
+    if (!address) return;
+    try {
+      await fetch('/api/leaderboard/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          address,
+          username: username || address.slice(0, 6),
+          scoreIncrement: 100
+        })
+      });
+      fetchLeaderboard();
+    } catch (err) {
+      console.error('Failed to update score:', err);
+    }
+  };
 
   const startHunt = () => {
     setIsHuntActive(true);
@@ -75,6 +109,7 @@ export default function App() {
           setIsCorrect(null);
         } else {
           setIsFinished(true);
+          updateScore();
         }
       }, 1000);
     } else {
@@ -313,24 +348,28 @@ export default function App() {
           </div>
           
           <div className="space-y-4">
-            {[
-              { name: 'Alex Rivera', points: '2,450', rank: 1, color: 'from-yellow-400 to-orange-500' },
-              { name: 'Sarah Chen', points: '2,120', rank: 2, color: 'from-slate-300 to-slate-400' },
-              { name: 'Marcus Thorne', points: '1,980', rank: 3, color: 'from-amber-600 to-amber-700' },
-            ].map((user) => (
-              <div key={user.rank} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors group">
-                <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${user.color} flex items-center justify-center text-white font-bold shadow-lg`}>
-                    {user.rank}
+            {leaderboard.length > 0 ? (
+              leaderboard.map((user, index) => (
+                <div key={user.address} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors group">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${
+                      index === 0 ? 'from-yellow-400 to-orange-500' : 
+                      index === 1 ? 'from-slate-300 to-slate-400' : 
+                      index === 2 ? 'from-amber-600 to-amber-700' : 'from-purple-500 to-indigo-500'
+                    } flex items-center justify-center text-white font-bold shadow-lg`}>
+                      {index + 1}
+                    </div>
+                    <span className="text-white font-bold text-lg">{user.username}</span>
                   </div>
-                  <span className="text-white font-bold text-lg">{user.name}</span>
+                  <div className="text-right">
+                    <span className="text-purple-400 font-black text-xl">{user.score.toLocaleString()}</span>
+                    <span className="text-purple-200/50 text-xs block uppercase tracking-wider font-bold">Points</span>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <span className="text-purple-400 font-black text-xl">{user.points}</span>
-                  <span className="text-purple-200/50 text-xs block uppercase tracking-wider font-bold">Points</span>
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <div className="py-10 text-purple-300 italic">No hunters yet. Be the first!</div>
+            )}
           </div>
           
           <button className="mt-10 text-purple-300 hover:text-white font-bold transition-colors underline underline-offset-8">
@@ -443,14 +482,29 @@ export default function App() {
                     <Trophy size={40} className="text-white" />
                   </div>
                   <h3 className="text-3xl font-black text-white mb-4">Hunt Completed!</h3>
-                  <p className="text-purple-200 mb-8 leading-relaxed">
+                  <p className="text-purple-200 mb-6 leading-relaxed">
                     Amazing job, Hunter! You've solved all the clues and discovered the secrets of the Verse ecosystem.
                   </p>
+                  
+                  <div className="mb-8">
+                    <label className="block text-purple-300 text-sm font-bold mb-2 text-left px-2">Set your Hunter Name</label>
+                    <input 
+                      type="text" 
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder={address?.slice(0, 6) || "Enter name"}
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-purple-500 transition-colors"
+                    />
+                  </div>
+
                   <button 
-                    onClick={() => setIsHuntActive(false)}
+                    onClick={() => {
+                      updateScore();
+                      setIsHuntActive(false);
+                    }}
                     className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-4 rounded-2xl font-bold shadow-xl"
                   >
-                    Claim Your Reward
+                    Claim Your Reward & Save Score
                   </button>
                 </div>
               )}
