@@ -10,7 +10,7 @@ const metadata = {
   name: 'Verse Scavenger Hunt',
   description: 'Join the ultimate adventure platform',
   url: 'https://verse.app',
-  icons: ['https://ibb.co/DHd07RDx']
+  icons: ['https://i.ibb.co/DHd07RDx/logo.png']
 }
 
 // 3. Create the networks

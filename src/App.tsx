@@ -107,7 +107,7 @@ export default function App() {
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-10 py-4 bg-[#1a0a3e]/60 backdrop-blur-md border-b border-white/10">
         <div className="flex items-center gap-2.5">
           <img 
-            src="https://ibb.co/DHd07RDx" 
+            src="https://i.ibb.co/DHd07RDx/logo.png" 
             alt="Verse Logo" 
             className="w-10 h-10 rounded-xl object-cover"
             referrerPolicy="no-referrer"
