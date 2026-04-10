@@ -1,6 +1,6 @@
 import express from 'express';
 import { createServer as createViteServer } from 'vite';
-import mongoose from 'mongoose';
+import { Pool } from 'pg';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -11,6 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+export { app };
 const PORT = 3000;
 
 app.use(express.json());
@@ -21,48 +22,71 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' });
-});
+// PostgreSQL Connection
+const DATABASE_URL = process.env.DATABASE_URL;
 
-// MongoDB Connection
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/verse-scavenger';
-
-if (!process.env.MONGODB_URI) {
-  console.warn('WARNING: MONGODB_URI environment variable is not set. Using local fallback.');
-} else {
-  if (process.env.MONGODB_URI.includes('<') || process.env.MONGODB_URI.includes('>')) {
-    console.error('CRITICAL ERROR: Your MONGODB_URI contains "<" or ">" characters. Please remove them from your password in Settings > Secrets.');
-  }
-  console.log('MONGODB_URI is set. Attempting to connect...');
+if (!DATABASE_URL) {
+  console.warn('WARNING: DATABASE_URL environment variable is not set. Database features will fail.');
 }
 
-mongoose.connect(MONGODB_URI)
-  .then(() => console.log('Successfully connected to MongoDB'))
-  .catch(err => {
-    console.error('CRITICAL: MongoDB connection error details:', err.message);
-  });
-
-// User Schema
-const userSchema = new mongoose.Schema({
-  address: { type: String, unique: true, sparse: true },
-  username: { type: String, required: true },
-  score: { type: Number, default: 0 },
-  completedHunts: { type: Number, default: 0 },
-  hasCompletedInitialHunt: { type: Boolean, default: false },
-  lastUpdated: { type: Date, default: Date.now }
+const pool = new Pool({
+  connectionString: DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 
-const User = mongoose.model('User', userSchema);
+// Initialize Database Table
+const initDb = async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        address VARCHAR(255) UNIQUE,
+        username VARCHAR(255) NOT NULL,
+        score INTEGER DEFAULT 0,
+        completed_hunts INTEGER DEFAULT 0,
+        has_completed_initial_hunt BOOLEAN DEFAULT FALSE,
+        last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('PostgreSQL table initialized');
+  } catch (err) {
+    console.error('Error initializing PostgreSQL table:', err);
+  }
+};
+
+initDb();
+
+app.get('/api/health', async (req, res) => {
+  try {
+    await pool.query('SELECT 1');
+    res.json({ status: 'ok', postgres: 'connected' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', postgres: 'disconnected' });
+  }
+});
 
 // User Status Route
 app.get('/api/user/:address', async (req, res) => {
   try {
     const normalizedAddress = req.params.address.toLowerCase();
-    const user = await User.findOne({ address: normalizedAddress });
-    if (!user) return res.status(404).json({ error: 'User not found' });
-    res.json(user);
+    const result = await pool.query('SELECT * FROM users WHERE address = $1', [normalizedAddress]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Map snake_case to camelCase for frontend compatibility
+    const user = result.rows[0];
+    res.json({
+      address: user.address,
+      username: user.username,
+      score: user.score,
+      completedHunts: user.completed_hunts,
+      hasCompletedInitialHunt: user.has_completed_initial_hunt,
+      lastUpdated: user.last_updated
+    });
   } catch (error) {
+    console.error('Error fetching user:', error);
     res.status(500).json({ error: 'Failed to fetch user' });
   }
 });
@@ -70,11 +94,18 @@ app.get('/api/user/:address', async (req, res) => {
 // Leaderboard Routes
 app.get('/api/leaderboard', async (req, res) => {
   try {
-    const topPlayers = await User.find()
-      .sort({ score: -1 })
-      .limit(10);
-    res.json(topPlayers);
+    const result = await pool.query('SELECT * FROM users ORDER BY score DESC LIMIT 10');
+    const players = result.rows.map(user => ({
+      address: user.address,
+      username: user.username,
+      score: user.score,
+      completedHunts: user.completed_hunts,
+      hasCompletedInitialHunt: user.has_completed_initial_hunt,
+      lastUpdated: user.last_updated
+    }));
+    res.json(players);
   } catch (error) {
+    console.error('Error fetching leaderboard:', error);
     res.status(500).json({ error: 'Failed to fetch leaderboard' });
   }
 });
@@ -89,29 +120,35 @@ app.post('/api/leaderboard/update', async (req, res) => {
       return res.status(400).json({ error: 'Wallet address required' });
     }
     
-    if (mongoose.connection.readyState !== 1) {
-      console.error('Database not connected. ReadyState:', mongoose.connection.readyState);
-      return res.status(503).json({ error: 'Database connection is not ready. Please try again in a few seconds.' });
-    }
-
     const normalizedAddress = address.toLowerCase();
     console.log(`Updating score for ${normalizedAddress} (username: ${username})`);
 
-    const player = await User.findOneAndUpdate(
-      { address: normalizedAddress },
-      { 
-        $inc: { score: scoreIncrement || 0, completedHunts: 1 },
-        $set: { 
-          username, 
-          lastUpdated: new Date(),
-          hasCompletedInitialHunt: true 
-        }
-      },
-      { upsert: true, new: true }
-    );
+    // Upsert logic for PostgreSQL
+    const query = `
+      INSERT INTO users (address, username, score, completed_hunts, has_completed_initial_hunt, last_updated)
+      VALUES ($1, $2, $3, 1, TRUE, CURRENT_TIMESTAMP)
+      ON CONFLICT (address) 
+      DO UPDATE SET 
+        score = users.score + EXCLUDED.score,
+        completed_hunts = users.completed_hunts + 1,
+        username = EXCLUDED.username,
+        has_completed_initial_hunt = TRUE,
+        last_updated = CURRENT_TIMESTAMP
+      RETURNING *;
+    `;
+    
+    const result = await pool.query(query, [normalizedAddress, username, scoreIncrement || 0]);
+    const player = result.rows[0];
     
     console.log(`Successfully updated player: ${player.username}, score: ${player.score}`);
-    res.json(player);
+    res.json({
+      address: player.address,
+      username: player.username,
+      score: player.score,
+      completedHunts: player.completed_hunts,
+      hasCompletedInitialHunt: player.has_completed_initial_hunt,
+      lastUpdated: player.last_updated
+    });
   } catch (error: any) {
     console.error('Error updating score route:', error);
     res.status(500).json({ error: `Failed to update score: ${error.message}` });
@@ -136,6 +173,12 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 });
 
 async function startServer() {
+  // Do not start the standalone server if running on Vercel
+  if (process.env.VERCEL) {
+    console.log('Running in Vercel environment, skipping app.listen');
+    return;
+  }
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
