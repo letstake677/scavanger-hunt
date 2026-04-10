@@ -4,6 +4,8 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 dotenv.config();
 
@@ -12,8 +14,13 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = 3000;
+const JWT_SECRET = process.env.JWT_SECRET || 'verse-secret-key';
 
 app.use(express.json());
+
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' });
+});
 
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/verse-scavenger';
@@ -22,21 +29,84 @@ mongoose.connect(MONGODB_URI)
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
-// Leaderboard Schema
-const leaderboardSchema = new mongoose.Schema({
-  address: { type: String, required: true, unique: true },
+// User Schema
+const userSchema = new mongoose.Schema({
+  email: { type: String, unique: true, sparse: true },
+  password: { type: String },
+  address: { type: String, unique: true, sparse: true },
   username: { type: String, required: true },
   score: { type: Number, default: 0 },
   completedHunts: { type: Number, default: 0 },
   lastUpdated: { type: Date, default: Date.now }
 });
 
-const Leaderboard = mongoose.model('Leaderboard', leaderboardSchema);
+const User = mongoose.model('User', userSchema);
 
-// API Routes
+// Auth Middleware
+const authenticateToken = (req: any, res: any, next: any) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) return res.sendStatus(401);
+
+  jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
+    if (err) return res.sendStatus(403);
+    req.user = user;
+    next();
+  });
+};
+
+// Auth Routes
+app.post('/api/auth/signup', async (req, res) => {
+  const { email, password, username } = req.body;
+  
+  try {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: 'Email already registered' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = new User({
+      email,
+      password: hashedPassword,
+      username: username || email.split('@')[0]
+    });
+
+    await user.save();
+    
+    const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET);
+    res.json({ token, user: { email: user.email, username: user.username, score: user.score } });
+  } catch (error) {
+    res.status(500).json({ error: 'Signup failed' });
+  }
+});
+
+app.post('/api/auth/login', async (req, res) => {
+  const { email, password } = req.body;
+  
+  try {
+    const user = await User.findOne({ email });
+    if (!user || !user.password) {
+      return res.status(400).json({ error: 'User not found' });
+    }
+
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      return res.status(400).json({ error: 'Invalid password' });
+    }
+
+    const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET);
+    res.json({ token, user: { email: user.email, username: user.username, score: user.score, completedHunts: user.completedHunts } });
+  } catch (error) {
+    res.status(500).json({ error: 'Login failed' });
+  }
+});
+
+// Leaderboard Routes
 app.get('/api/leaderboard', async (req, res) => {
   try {
-    const topPlayers = await Leaderboard.find()
+    const topPlayers = await User.find()
       .sort({ score: -1 })
       .limit(10);
     res.json(topPlayers);
@@ -46,15 +116,16 @@ app.get('/api/leaderboard', async (req, res) => {
 });
 
 app.post('/api/leaderboard/update', async (req, res) => {
-  const { address, username, scoreIncrement } = req.body;
+  const { address, username, scoreIncrement, email } = req.body;
   
-  if (!address || !username) {
-    return res.status(400).json({ error: 'Address and username are required' });
-  }
-
   try {
-    const player = await Leaderboard.findOneAndUpdate(
-      { address },
+    let query = {};
+    if (address) query = { address };
+    else if (email) query = { email };
+    else return res.status(400).json({ error: 'Identifier required' });
+
+    const player = await User.findOneAndUpdate(
+      query,
       { 
         $inc: { score: scoreIncrement || 0, completedHunts: 1 },
         $set: { username, lastUpdated: new Date() }
