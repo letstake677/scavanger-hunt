@@ -55,24 +55,34 @@ export default function App() {
   const [isFinished, setIsFinished] = useState(false);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [username, setUsername] = useState('');
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [user, setUser] = useState<any>(null);
-  const [token, setToken] = useState<string | null>(localStorage.getItem('verse_token'));
-  const [authError, setAuthError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [hasCompleted, setHasCompleted] = useState(false);
+  const [hasSaved, setHasSaved] = useState(false);
 
   useEffect(() => {
     fetchLeaderboard();
-    const savedUser = localStorage.getItem('verse_user');
-    if (savedUser) {
-      const parsedUser = JSON.parse(savedUser);
-      setUser(parsedUser);
-      setUsername(parsedUser.username);
-    }
   }, []);
+
+  useEffect(() => {
+    if (address) {
+      fetchUserStatus();
+    } else {
+      setHasCompleted(false);
+      setUsername('');
+    }
+  }, [address]);
+
+  const fetchUserStatus = async () => {
+    try {
+      const res = await fetch(`/api/user/${address}`);
+      if (res.ok) {
+        const data = await res.json();
+        setHasCompleted(data.hasCompletedInitialHunt);
+        if (data.username) setUsername(data.username);
+      }
+    } catch (err) {
+      console.error('Failed to fetch user status:', err);
+    }
+  };
 
   const fetchLeaderboard = async () => {
     try {
@@ -89,71 +99,21 @@ export default function App() {
     }
   };
 
-  const handleAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setAuthError(null);
-    setIsLoading(true);
-    const endpoint = authMode === 'login' ? '/api/auth/login' : '/api/auth/signup';
-    try {
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, username: username || email.split('@')[0] })
-      });
-      
-      const contentType = res.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        const text = await res.text();
-        console.error('Expected JSON but got:', text.slice(0, 100));
-        setAuthError(`Server error: Received non-JSON response (Status: ${res.status}).`);
-        setIsLoading(false);
-        return;
-      }
-
-      const data = await res.json();
-      if (data.error) {
-        setAuthError(data.error);
-        setIsLoading(false);
-        return;
-      }
-      setToken(data.token);
-      setUser(data.user);
-      setUsername(data.user.username);
-      localStorage.setItem('verse_token', data.token);
-      localStorage.setItem('verse_user', JSON.stringify(data.user));
-      setIsAuthModalOpen(false);
-      setEmail('');
-      setPassword('');
-      setAuthError(null);
-    } catch (err) {
-      console.error('Auth failed:', err);
-      setAuthError('Connection failed. Please check your internet.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const logout = () => {
-    setToken(null);
-    setUser(null);
-    localStorage.removeItem('verse_token');
-    localStorage.removeItem('verse_user');
-  };
-
   const updateScore = async () => {
-    if (!address && !user?.email) return;
+    if (!address || hasSaved) return;
     try {
       const res = await fetch('/api/leaderboard/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          address: address || undefined,
-          email: user?.email || undefined,
-          username: username || user?.username || address?.slice(0, 6) || "Hunter",
+          address: address,
+          username: username || address?.slice(0, 6) || "Hunter",
           scoreIncrement: 100
         })
       });
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      setHasSaved(true);
+      setHasCompleted(true);
       fetchLeaderboard();
     } catch (err) {
       console.error('Failed to update score:', err);
@@ -167,6 +127,7 @@ export default function App() {
     setShowHint(false);
     setIsFinished(false);
     setIsMenuOpen(false);
+    setHasSaved(false); // Reset save state for new hunt attempt
   };
 
   const handleOptionSelect = (option: string) => {
@@ -185,7 +146,8 @@ export default function App() {
           setIsCorrect(null);
         } else {
           setIsFinished(true);
-          updateScore();
+          // We don't call updateScore here anymore, 
+          // we wait for the user to click "Claim Reward" to avoid double calls
         }
       }, 1000);
     } else {
@@ -238,36 +200,24 @@ export default function App() {
             </a>
           ))}
           
-            {user || isConnected ? (
+            {isConnected ? (
               <div className="flex items-center gap-3">
                 <div className="hidden lg:flex flex-col items-end mr-2">
-                  <span className="text-white text-xs font-bold">{user?.username || (address?.slice(0, 6) + '...' + address?.slice(-4))}</span>
-                  {isConnected && balance && (
+                  <span className="text-white text-xs font-bold">{address?.slice(0, 6) + '...' + address?.slice(-4)}</span>
+                  {balance && (
                     <span className="text-purple-300 text-[10px] font-mono">
                       {parseFloat(formatEther(balance.value)).toFixed(4)} {balance.symbol}
                     </span>
                   )}
                 </div>
                 <button 
-                  onClick={() => isConnected ? modal.open({ view: 'Account' }) : logout()}
+                  onClick={() => modal.open({ view: 'Account' })}
                   className="bg-white/10 hover:bg-white/20 text-white p-2 rounded-full transition-colors border border-white/10"
                 >
                   <User size={18} />
                 </button>
               </div>
             ) : (
-              <button 
-                onClick={() => {
-                  setAuthMode('login');
-                  setIsAuthModalOpen(true);
-                }}
-                className="text-white px-4 py-2 rounded-full font-bold text-sm hover:bg-white/10 transition-colors border border-white/20"
-              >
-                Login
-              </button>
-            )}
-
-            {!isConnected && (
               <button 
                 onClick={() => modal.open()}
                 className="bg-gradient-to-br from-purple-500 to-purple-400 text-white px-6 py-2.5 rounded-full font-bold text-sm hover:scale-105 transition-transform shadow-[0_4px_20px_rgba(168,85,247,0.5)] flex items-center gap-2"
@@ -345,23 +295,10 @@ export default function App() {
                 </a>
               ))}
               
-              {!user && (
-                <button 
-                  onClick={() => {
-                    setAuthMode('login');
-                    setIsAuthModalOpen(true);
-                    setIsMenuOpen(false);
-                  }}
-                  className="w-full bg-white/5 border border-white/20 text-white py-4 rounded-2xl font-bold text-lg"
-                >
-                  Login / Signup
-                </button>
-              )}
-
               <button 
                 onClick={() => {
-                  if (!isConnected && !user) {
-                    setIsAuthModalOpen(true);
+                  if (!isConnected) {
+                    modal.open();
                   } else {
                     startHunt();
                   }
@@ -369,7 +306,7 @@ export default function App() {
                 }}
                 className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-4 rounded-2xl font-bold text-lg shadow-xl"
               >
-                {isConnected || user ? 'Start Hunting' : 'Join the Community'}
+                {isConnected ? (hasCompleted ? 'Play Again' : 'Start Hunting') : 'Connect Wallet'}
               </button>
             </div>
           </motion.div>
@@ -388,15 +325,15 @@ export default function App() {
           <button 
             onClick={() => {
               console.log('Hero Join button clicked');
-              if (!isConnected && !user) {
-                setIsAuthModalOpen(true);
+              if (!isConnected) {
+                modal.open();
               } else {
                 startHunt();
               }
             }}
             className="bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 text-white px-11 py-4 rounded-full text-lg font-bold hover:scale-105 transition-transform shadow-[0_6px_30px_rgba(168,85,247,0.5)]"
           >
-            {isConnected || user ? 'Start Hunting' : 'Join the Community'}
+            {isConnected ? (hasCompleted ? 'Play Again' : 'Start Hunting') : 'Connect Wallet'}
           </button>
         </div>
       </section>
@@ -627,120 +564,25 @@ export default function App() {
                       type="text" 
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
-                      placeholder={user?.username || address?.slice(0, 6) || "Enter name"}
+                      placeholder={address?.slice(0, 6) || "Enter name"}
                       className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-purple-500 transition-colors"
                     />
                   </div>
 
                   <button 
                     onClick={() => {
-                      updateScore();
+                      if (!hasSaved) {
+                        updateScore();
+                      }
                       setIsHuntActive(false);
                     }}
-                    className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-4 rounded-2xl font-bold shadow-xl"
+                    disabled={hasSaved && isFinished}
+                    className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-4 rounded-2xl font-bold shadow-xl disabled:opacity-50"
                   >
-                    Claim Your Reward & Save Score
+                    {hasSaved ? 'Score Saved!' : 'Claim Your Reward & Save Score'}
                   </button>
                 </div>
               )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Auth Modal */}
-      <AnimatePresence>
-        {isAuthModalOpen && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-[#0a051a]/95 backdrop-blur-md"
-          >
-            <motion.div 
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              className="bg-[#1a0a3e] border border-white/10 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl relative p-8"
-            >
-              <button 
-                onClick={() => setIsAuthModalOpen(false)}
-                className="absolute top-4 right-4 text-purple-300 hover:text-white transition-colors"
-              >
-                <X size={24} />
-              </button>
-
-              <h3 className="text-3xl font-black text-white mb-2">
-                {authMode === 'login' ? 'Welcome Back' : 'Join the Hunt'}
-              </h3>
-              <p className="text-purple-300 mb-8">
-                {authMode === 'login' ? 'Login to continue your adventure' : 'Create an account to save your progress'}
-              </p>
-
-              {authError && (
-                <div className="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-2xl text-red-200 text-sm font-medium">
-                  {authError}
-                </div>
-              )}
-
-              <form onSubmit={handleAuth} className="space-y-4">
-                <div>
-                  <label className="block text-purple-300 text-xs font-bold uppercase tracking-widest mb-2 ml-1">Email Address</label>
-                  <input 
-                    type="email" 
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="hunter@verse.app"
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-purple-500 transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="block text-purple-300 text-xs font-bold uppercase tracking-widest mb-2 ml-1">Password</label>
-                  <input 
-                    type="password" 
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-purple-500 transition-colors"
-                  />
-                </div>
-                {authMode === 'signup' && (
-                  <div>
-                    <label className="block text-purple-300 text-xs font-bold uppercase tracking-widest mb-2 ml-1">Username</label>
-                    <input 
-                      type="text" 
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      placeholder="SuperHunter"
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-purple-500 transition-colors"
-                    />
-                  </div>
-                )}
-                <button 
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-4 rounded-2xl font-bold shadow-xl hover:scale-[1.02] transition-transform mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {isLoading ? (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : (
-                    authMode === 'login' ? 'Login' : 'Sign Up'
-                  )}
-                </button>
-              </form>
-
-              <div className="mt-8 text-center">
-                <p className="text-purple-300 text-sm">
-                  {authMode === 'login' ? "Don't have an account?" : "Already have an account?"}
-                  <button 
-                    onClick={() => setAuthMode(authMode === 'login' ? 'signup' : 'login')}
-                    className="ml-2 text-white font-bold hover:underline"
-                  >
-                    {authMode === 'login' ? 'Sign Up' : 'Login'}
-                  </button>
-                </p>
-              </div>
             </motion.div>
           </motion.div>
         )}
