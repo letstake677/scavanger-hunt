@@ -123,7 +123,16 @@ export default function App() {
         })
       });
       
-      const data = await res.json();
+      const contentType = res.headers.get('content-type');
+      let data;
+      
+      if (contentType && contentType.includes('application/json')) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        console.error('Server returned non-JSON response:', text);
+        throw new Error(`Server returned ${res.status} ${res.statusText}. Please check the server logs.`);
+      }
       
       if (!res.ok) {
         throw new Error(data.error || `HTTP error! status: ${res.status}`);

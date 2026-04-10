@@ -80,10 +80,14 @@ app.get('/api/leaderboard', async (req, res) => {
 });
 
 app.post('/api/leaderboard/update', async (req, res) => {
+  console.log('RECEIVED POST /api/leaderboard/update', req.body);
   const { address, username, scoreIncrement } = req.body;
   
   try {
-    if (!address) return res.status(400).json({ error: 'Wallet address required' });
+    if (!address) {
+      console.warn('Update failed: Missing address');
+      return res.status(400).json({ error: 'Wallet address required' });
+    }
     
     if (mongoose.connection.readyState !== 1) {
       console.error('Database not connected. ReadyState:', mongoose.connection.readyState);
@@ -109,14 +113,26 @@ app.post('/api/leaderboard/update', async (req, res) => {
     console.log(`Successfully updated player: ${player.username}, score: ${player.score}`);
     res.json(player);
   } catch (error: any) {
-    console.error('Error updating score:', error);
+    console.error('Error updating score route:', error);
     res.status(500).json({ error: `Failed to update score: ${error.message}` });
   }
 });
 
 // JSON 404 for API routes to prevent HTML fall-through
 app.use('/api', (req, res) => {
+  console.warn(`404 - API route not found: ${req.method} ${req.originalUrl}`);
   res.status(404).json({ error: `API route not found: ${req.method} ${req.originalUrl}` });
+});
+
+// Global Error Handler
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error('GLOBAL ERROR:', err);
+  const status = err.status || err.statusCode || 500;
+  res.status(status).json({ 
+    error: err.message || 'Internal Server Error',
+    path: req.url,
+    method: req.method
+  });
 });
 
 async function startServer() {
