@@ -6,8 +6,9 @@
 import { useState, useEffect } from 'react';
 import { Menu, X, Trophy, MapPin, Search, Gift, Lightbulb, CheckCircle2, ArrowRight, Sparkles, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useAccount } from 'wagmi'
+import { useAccount, useDisconnect, useBalance } from 'wagmi'
 import { modal } from './config/reown'
+import { formatEther } from 'viem'
 
 const HUNT_QUESTIONS = [
   {
@@ -42,6 +43,9 @@ const HUNT_QUESTIONS = [
 
 export default function App() {
   const { address, isConnected } = useAccount()
+  const { disconnect } = useDisconnect()
+  const { data: balance } = useBalance({ address })
+  
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isHuntActive, setIsHuntActive] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
@@ -234,15 +238,21 @@ export default function App() {
             </a>
           ))}
           
-          <div className="flex items-center gap-3">
-            {user ? (
+            {user || isConnected ? (
               <div className="flex items-center gap-3">
-                <span className="text-white text-sm font-bold">Hi, {user.username}</span>
+                <div className="hidden lg:flex flex-col items-end mr-2">
+                  <span className="text-white text-xs font-bold">{user?.username || (address?.slice(0, 6) + '...' + address?.slice(-4))}</span>
+                  {isConnected && balance && (
+                    <span className="text-purple-300 text-[10px] font-mono">
+                      {parseFloat(formatEther(balance.value)).toFixed(4)} {balance.symbol}
+                    </span>
+                  )}
+                </div>
                 <button 
-                  onClick={logout}
-                  className="text-purple-300 hover:text-white text-xs font-bold underline"
+                  onClick={() => isConnected ? modal.open({ view: 'Account' }) : logout()}
+                  className="bg-white/10 hover:bg-white/20 text-white p-2 rounded-full transition-colors border border-white/10"
                 >
-                  Logout
+                  <User size={18} />
                 </button>
               </div>
             ) : (
@@ -257,27 +267,14 @@ export default function App() {
               </button>
             )}
 
-            <button 
-              onClick={() => {
-                console.log('Join button clicked, calling modal.open()');
-                try {
-                  modal.open();
-                } catch (err) {
-                  console.error('Error calling modal.open():', err);
-                }
-              }}
-              className="bg-gradient-to-br from-purple-500 to-purple-400 text-white px-6 py-2.5 rounded-full font-bold text-sm hover:scale-105 transition-transform shadow-[0_4px_20px_rgba(168,85,247,0.5)] flex items-center gap-2"
-            >
-              {isConnected ? (
-                <>
-                  <User size={16} />
-                  {address?.slice(0, 6)}...{address?.slice(-4)}
-                </>
-              ) : (
-                'Connect Wallet'
-              )}
-            </button>
-          </div>
+            {!isConnected && (
+              <button 
+                onClick={() => modal.open()}
+                className="bg-gradient-to-br from-purple-500 to-purple-400 text-white px-6 py-2.5 rounded-full font-bold text-sm hover:scale-105 transition-transform shadow-[0_4px_20px_rgba(168,85,247,0.5)] flex items-center gap-2"
+              >
+                Connect Wallet
+              </button>
+            )}
         </div>
 
         {/* Mobile Toggle */}
@@ -310,6 +307,33 @@ export default function App() {
             className="fixed inset-0 z-40 md:hidden pt-24 px-6 bg-[#1a0a3e]/95 backdrop-blur-xl"
           >
             <div className="flex flex-col gap-6">
+              {isConnected && (
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-purple-300 text-xs font-bold uppercase">Wallet Connected</span>
+                    <button 
+                      onClick={() => modal.open({ view: 'Account' })}
+                      className="text-white text-xs font-bold underline"
+                    >
+                      Manage
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center">
+                      <User size={20} className="text-purple-400" />
+                    </div>
+                    <div>
+                      <p className="text-white font-bold text-sm">{address?.slice(0, 6)}...{address?.slice(-4)}</p>
+                      {balance && (
+                        <p className="text-purple-300 text-xs font-mono">
+                          {parseFloat(formatEther(balance.value)).toFixed(4)} {balance.symbol}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {navLinks.map((link) => (
                 <a
                   key={link.name}

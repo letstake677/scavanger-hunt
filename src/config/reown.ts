@@ -30,8 +30,14 @@ export const modal = createAppKit({
   projectId,
   metadata,
   features: {
-    analytics: false,
-    email: false,
-    socials: []
+    analytics: true,
+    email: true, // Enable email login
+    socials: ['google', 'x', 'github', 'discord', 'apple'], // Enable social logins
+    emailShowWallets: true
+  },
+  themeMode: 'dark',
+  themeVariables: {
+    '--w3m-accent': '#8b5cf6',
+    '--w3m-border-radius-master': '12px'
   }
 })
