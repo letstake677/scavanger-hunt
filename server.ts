@@ -58,7 +58,8 @@ const User = mongoose.model('User', userSchema);
 // User Status Route
 app.get('/api/user/:address', async (req, res) => {
   try {
-    const user = await User.findOne({ address: req.params.address });
+    const normalizedAddress = req.params.address.toLowerCase();
+    const user = await User.findOne({ address: normalizedAddress });
     if (!user) return res.status(404).json({ error: 'User not found' });
     res.json(user);
   } catch (error) {
@@ -83,11 +84,17 @@ app.post('/api/leaderboard/update', async (req, res) => {
   
   try {
     if (!address) return res.status(400).json({ error: 'Wallet address required' });
+    
+    if (mongoose.connection.readyState !== 1) {
+      console.error('Database not connected. ReadyState:', mongoose.connection.readyState);
+      return res.status(503).json({ error: 'Database connection is not ready. Please try again in a few seconds.' });
+    }
 
-    console.log(`Updating score for ${address} (username: ${username})`);
+    const normalizedAddress = address.toLowerCase();
+    console.log(`Updating score for ${normalizedAddress} (username: ${username})`);
 
     const player = await User.findOneAndUpdate(
-      { address },
+      { address: normalizedAddress },
       { 
         $inc: { score: scoreIncrement || 0, completedHunts: 1 },
         $set: { 

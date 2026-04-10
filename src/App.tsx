@@ -57,6 +57,14 @@ export default function App() {
   const [username, setUsername] = useState('');
   const [hasCompleted, setHasCompleted] = useState(false);
   const [hasSaved, setHasSaved] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
+  useEffect(() => {
+    if (statusMessage) {
+      const timer = setTimeout(() => setStatusMessage(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [statusMessage]);
 
   useEffect(() => {
     fetchLeaderboard();
@@ -73,7 +81,7 @@ export default function App() {
 
   const fetchUserStatus = async () => {
     try {
-      const res = await fetch(`/api/user/${address}`);
+      const res = await fetch(`/api/user/${address.toLowerCase()}`);
       if (res.ok) {
         const data = await res.json();
         setHasCompleted(data.hasCompletedInitialHunt);
@@ -102,21 +110,33 @@ export default function App() {
   const updateScore = async () => {
     if (!address || hasSaved) return;
     try {
+      const normalizedAddress = address.toLowerCase();
+      console.log('Sending score update for:', normalizedAddress);
+      
       const res = await fetch('/api/leaderboard/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          address: address,
+          address: normalizedAddress,
           username: username || address?.slice(0, 6) || "Hunter",
           scoreIncrement: 100
         })
       });
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.error || `HTTP error! status: ${res.status}`);
+      }
+      
+      console.log('Score update successful:', data);
       setHasSaved(true);
       setHasCompleted(true);
+      setStatusMessage({ type: 'success', text: 'Score saved successfully!' });
       fetchLeaderboard();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to update score:', err);
+      setStatusMessage({ type: 'error', text: `Failed to save score: ${err.message}` });
     }
   };
 
@@ -175,6 +195,25 @@ export default function App() {
         alt="background"
       />
       <div className="fixed inset-0 z-0 bg-gradient-to-b from-[#1a0a3e]/40 via-[#2d1b69]/30 to-[#1a0a3e]/60 backdrop-blur-[1px]"></div>
+
+      {/* Status Messages */}
+      <AnimatePresence>
+        {statusMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className={`fixed bottom-10 left-1/2 -translate-x-1/2 z-[200] px-6 py-3 rounded-full font-bold shadow-2xl flex items-center gap-3 border ${
+              statusMessage.type === 'success' 
+                ? 'bg-green-500/90 border-green-400 text-white' 
+                : 'bg-red-500/90 border-red-400 text-white'
+            }`}
+          >
+            {statusMessage.type === 'success' ? <CheckCircle2 size={20} /> : <X size={20} />}
+            {statusMessage.text}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-10 py-4 bg-[#1a0a3e]/60 backdrop-blur-md border-b border-white/10">
