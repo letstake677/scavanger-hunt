@@ -18,6 +18,12 @@ const JWT_SECRET = process.env.JWT_SECRET || 'verse-secret-key';
 
 app.use(express.json());
 
+// Request Logger
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  next();
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' });
 });
@@ -25,9 +31,20 @@ app.get('/api/health', (req, res) => {
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/verse-scavenger';
 
+if (!process.env.MONGODB_URI) {
+  console.warn('WARNING: MONGODB_URI environment variable is not set. Using local fallback.');
+} else {
+  if (process.env.MONGODB_URI.includes('<') || process.env.MONGODB_URI.includes('>')) {
+    console.error('CRITICAL ERROR: Your MONGODB_URI contains "<" or ">" characters. Please remove them from your password in Settings > Secrets.');
+  }
+  console.log('MONGODB_URI is set. Attempting to connect...');
+}
+
 mongoose.connect(MONGODB_URI)
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('MongoDB connection error:', err));
+  .then(() => console.log('Successfully connected to MongoDB'))
+  .catch(err => {
+    console.error('CRITICAL: MongoDB connection error details:', err.message);
+  });
 
 // User Schema
 const userSchema = new mongoose.Schema({
@@ -61,6 +78,10 @@ app.post('/api/auth/signup', async (req, res) => {
   const { email, password, username } = req.body;
   
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ error: 'Database is not connected. Please check your MONGODB_URI in Settings > Secrets.' });
+    }
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ error: 'Email already registered' });
@@ -77,8 +98,9 @@ app.post('/api/auth/signup', async (req, res) => {
     
     const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET);
     res.json({ token, user: { email: user.email, username: user.username, score: user.score } });
-  } catch (error) {
-    res.status(500).json({ error: 'Signup failed' });
+  } catch (error: any) {
+    console.error('Signup Error:', error);
+    res.status(500).json({ error: `Signup failed: ${error.message}` });
   }
 });
 
@@ -136,6 +158,11 @@ app.post('/api/leaderboard/update', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Failed to update score' });
   }
+});
+
+// JSON 404 for API routes to prevent HTML fall-through
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: `API route not found: ${req.method} ${req.originalUrl}` });
 });
 
 async function startServer() {

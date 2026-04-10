@@ -73,6 +73,11 @@ export default function App() {
   const fetchLeaderboard = async () => {
     try {
       const res = await fetch('/api/leaderboard');
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Received non-JSON response from leaderboard API');
+      }
       const data = await res.json();
       setLeaderboard(data);
     } catch (err) {
@@ -91,6 +96,16 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, username: username || email.split('@')[0] })
       });
+      
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await res.text();
+        console.error('Expected JSON but got:', text.slice(0, 100));
+        setAuthError(`Server error: Received non-JSON response (Status: ${res.status}).`);
+        setIsLoading(false);
+        return;
+      }
+
       const data = await res.json();
       if (data.error) {
         setAuthError(data.error);
@@ -124,7 +139,7 @@ export default function App() {
   const updateScore = async () => {
     if (!address && !user?.email) return;
     try {
-      await fetch('/api/leaderboard/update', {
+      const res = await fetch('/api/leaderboard/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -134,6 +149,7 @@ export default function App() {
           scoreIncrement: 100
         })
       });
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       fetchLeaderboard();
     } catch (err) {
       console.error('Failed to update score:', err);
