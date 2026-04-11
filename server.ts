@@ -42,6 +42,7 @@ const initDb = async () => {
         id SERIAL PRIMARY KEY,
         address VARCHAR(255) UNIQUE,
         username VARCHAR(255) NOT NULL,
+        profile_pic TEXT,
         score INTEGER DEFAULT 0,
         completed_hunts INTEGER DEFAULT 0,
         has_completed_initial_hunt BOOLEAN DEFAULT FALSE,
@@ -80,6 +81,7 @@ app.get('/api/user/:address', async (req, res) => {
     res.json({
       address: user.address,
       username: user.username,
+      profilePic: user.profile_pic,
       score: user.score,
       completedHunts: user.completed_hunts,
       hasCompletedInitialHunt: user.has_completed_initial_hunt,
@@ -98,6 +100,7 @@ app.get('/api/leaderboard', async (req, res) => {
     const players = result.rows.map(user => ({
       address: user.address,
       username: user.username,
+      profilePic: user.profile_pic,
       score: user.score,
       completedHunts: user.completed_hunts,
       hasCompletedInitialHunt: user.has_completed_initial_hunt,
@@ -107,6 +110,45 @@ app.get('/api/leaderboard', async (req, res) => {
   } catch (error) {
     console.error('Error fetching leaderboard:', error);
     res.status(500).json({ error: 'Failed to fetch leaderboard' });
+  }
+});
+
+app.post('/api/user/update-profile', async (req, res) => {
+  const { address, username, profilePic } = req.body;
+  
+  try {
+    if (!address) {
+      return res.status(400).json({ error: 'Wallet address required' });
+    }
+    
+    const normalizedAddress = address.toLowerCase();
+    
+    const query = `
+      INSERT INTO users (address, username, profile_pic, score, completed_hunts, has_completed_initial_hunt, last_updated)
+      VALUES ($1, $2, $3, 0, 0, FALSE, CURRENT_TIMESTAMP)
+      ON CONFLICT (address) 
+      DO UPDATE SET 
+        username = EXCLUDED.username,
+        profile_pic = EXCLUDED.profile_pic,
+        last_updated = CURRENT_TIMESTAMP
+      RETURNING *;
+    `;
+    
+    const result = await pool.query(query, [normalizedAddress, username, profilePic]);
+    const user = result.rows[0];
+    
+    res.json({
+      address: user.address,
+      username: user.username,
+      profilePic: user.profile_pic,
+      score: user.score,
+      completedHunts: user.completed_hunts,
+      hasCompletedInitialHunt: user.has_completed_initial_hunt,
+      lastUpdated: user.last_updated
+    });
+  } catch (error: any) {
+    console.error('Error updating profile:', error);
+    res.status(500).json({ error: `Failed to update profile: ${error.message}` });
   }
 });
 

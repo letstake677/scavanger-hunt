@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Menu, X, Trophy, MapPin, Search, Gift, Lightbulb, CheckCircle2, ArrowRight, Sparkles, User, Mail, MessageCircle, Twitter, Send, ExternalLink, ShieldAlert, Clock } from 'lucide-react';
+import { Menu, X, Trophy, MapPin, Search, Gift, Lightbulb, CheckCircle2, ArrowRight, Sparkles, User, Mail, MessageCircle, Twitter, Send, ExternalLink, ShieldAlert, Clock, Edit2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAccount, useDisconnect, useBalance } from 'wagmi'
 import { modal } from './config/reown'
@@ -71,6 +71,10 @@ export default function App() {
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
   const [isDocsModalOpen, setIsDocsModalOpen] = useState(false);
   const [isCommunityModalOpen, setIsCommunityModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [newUsername, setNewUsername] = useState('');
+  const [newProfilePic, setNewProfilePic] = useState('');
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
 
   const playSound = (soundUrl: string) => {
     const audio = new Audio(soundUrl);
@@ -166,6 +170,35 @@ export default function App() {
     } catch (err: any) {
       console.error('Failed to update score:', err);
       setStatusMessage({ type: 'error', text: `Failed to save score: ${err.message}` });
+    }
+  };
+
+  const updateProfile = async () => {
+    if (!address || !newUsername.trim()) return;
+    
+    setIsUpdatingProfile(true);
+    try {
+      const response = await fetch('/api/user/update-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          address,
+          username: newUsername.trim(),
+          profilePic: newProfilePic.trim()
+        })
+      });
+      
+      if (response.ok) {
+        const updatedUser = await response.json();
+        setUsername(updatedUser.username);
+        setIsProfileModalOpen(false);
+        playSound(SOUNDS.success);
+        fetchLeaderboard();
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+    } finally {
+      setIsUpdatingProfile(false);
     }
   };
 
@@ -271,19 +304,34 @@ export default function App() {
             {isConnected ? (
               <div className="flex items-center gap-3">
                 <div className="hidden lg:flex flex-col items-end mr-2">
-                  <span className="text-white text-xs font-bold">{address?.slice(0, 6) + '...' + address?.slice(-4)}</span>
+                  <span className="text-white text-xs font-bold">{username || address?.slice(0, 6) + '...' + address?.slice(-4)}</span>
                   {balance && (
                     <span className="text-purple-300 text-[10px] font-mono">
                       {parseFloat(formatEther(balance.value)).toFixed(4)} {balance.symbol}
                     </span>
                   )}
                 </div>
-                <button 
-                  onClick={() => modal.open({ view: 'Account' })}
-                  className="bg-white/10 hover:bg-white/20 text-white p-2 rounded-full transition-colors border border-white/10"
-                >
-                  <User size={18} />
-                </button>
+                <div className="relative group">
+                  <button 
+                    onClick={() => {
+                      setNewUsername(username);
+                      setNewProfilePic(leaderboard.find(p => p.address.toLowerCase() === address?.toLowerCase())?.profilePic || '');
+                      setIsProfileModalOpen(true);
+                    }}
+                    className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center border border-white/20 overflow-hidden hover:scale-110 transition-transform"
+                  >
+                    {leaderboard.find(p => p.address.toLowerCase() === address?.toLowerCase())?.profilePic ? (
+                      <img 
+                        src={leaderboard.find(p => p.address.toLowerCase() === address?.toLowerCase())?.profilePic} 
+                        alt="Profile" 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <User size={18} className="text-white" />
+                    )}
+                  </button>
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 border-2 border-[#1a0a3e] rounded-full"></div>
+                </div>
               </div>
             ) : (
               <button 
@@ -337,11 +385,31 @@ export default function App() {
                     </button>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center">
-                      <User size={20} className="text-purple-400" />
+                    <div className="relative group">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center border-2 border-purple-400/30 overflow-hidden">
+                        {leaderboard.find(p => p.address.toLowerCase() === address?.toLowerCase())?.profilePic ? (
+                          <img 
+                            src={leaderboard.find(p => p.address.toLowerCase() === address?.toLowerCase())?.profilePic} 
+                            alt="Profile" 
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <User className="w-6 h-6 text-white" />
+                        )}
+                      </div>
+                      <button 
+                        onClick={() => {
+                          setNewUsername(username);
+                          setNewProfilePic(leaderboard.find(p => p.address.toLowerCase() === address?.toLowerCase())?.profilePic || '');
+                          setIsProfileModalOpen(true);
+                        }}
+                        className="absolute -bottom-1 -right-1 p-1 bg-purple-600 rounded-full border border-purple-400 text-white shadow-lg"
+                      >
+                        <Edit2 className="w-3 h-3" />
+                      </button>
                     </div>
                     <div>
-                      <p className="text-white font-bold text-sm">{address?.slice(0, 6)}...{address?.slice(-4)}</p>
+                      <p className="text-white font-bold text-lg">{username || address?.slice(0, 6) + '...' + address?.slice(-4)}</p>
                       {balance && (
                         <p className="text-purple-300 text-xs font-mono">
                           {parseFloat(formatEther(balance.value)).toFixed(4)} {balance.symbol}
@@ -496,8 +564,12 @@ export default function App() {
                       index === 0 ? 'from-yellow-400 to-orange-500' : 
                       index === 1 ? 'from-slate-300 to-slate-400' : 
                       index === 2 ? 'from-amber-600 to-amber-700' : 'from-purple-500 to-indigo-500'
-                    } flex items-center justify-center text-white font-bold shadow-lg`}>
-                      {index + 1}
+                    } flex items-center justify-center text-white font-bold shadow-lg overflow-hidden`}>
+                      {user.profilePic ? (
+                        <img src={user.profilePic} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        index + 1
+                      )}
                     </div>
                     <span className="text-white font-bold text-lg">{user.username}</span>
                   </div>
@@ -658,6 +730,89 @@ export default function App() {
               )}
             </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Profile Edit Modal */}
+      <AnimatePresence>
+        {isProfileModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="bg-gray-900 border border-purple-500/30 rounded-2xl p-6 w-full max-w-md shadow-2xl relative overflow-hidden"
+            >
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500" />
+              
+              <button 
+                onClick={() => setIsProfileModalOpen(false)}
+                className="absolute top-4 right-4 p-2 text-gray-400 hover:text-white transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-purple-500/20 rounded-lg">
+                  <User className="w-6 h-6 text-purple-400" />
+                </div>
+                <h2 className="text-2xl font-bold text-white">Edit Profile</h2>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-purple-300 mb-1">Username</label>
+                  <input 
+                    type="text"
+                    value={newUsername}
+                    onChange={(e) => setNewUsername(e.target.value)}
+                    placeholder="Enter new username"
+                    className="w-full bg-gray-800 border border-purple-500/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-purple-300 mb-1">Profile Picture URL</label>
+                  <input 
+                    type="text"
+                    value={newProfilePic}
+                    onChange={(e) => setNewProfilePic(e.target.value)}
+                    placeholder="https://example.com/image.png"
+                    className="w-full bg-gray-800 border border-purple-500/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Provide a direct link to an image (ImgBB, etc.)</p>
+                </div>
+
+                {newProfilePic && (
+                  <div className="flex justify-center py-2">
+                    <div className="w-20 h-20 rounded-full border-2 border-purple-500/50 overflow-hidden bg-gray-800">
+                      <img 
+                        src={newProfilePic} 
+                        alt="Preview" 
+                        className="w-full h-full object-cover"
+                        onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/150?text=Invalid+URL')}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <button
+                  onClick={updateProfile}
+                  disabled={isUpdatingProfile || !newUsername.trim()}
+                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-purple-500/20 disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {isUpdatingProfile ? (
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-5 h-5" />
+                      Save Changes
+                    </>
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 
