@@ -41,6 +41,13 @@ const HUNT_QUESTIONS = [
   }
 ];
 
+const SOUNDS = {
+  correct: 'https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3', // Success chime
+  incorrect: 'https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3', // Low thud/error
+  success: 'https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3', // Level up/Win
+  click: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3' // Subtle click
+};
+
 export default function App() {
   const { address, isConnected } = useAccount()
   const { disconnect } = useDisconnect()
@@ -59,6 +66,12 @@ export default function App() {
   const [hasCompleted, setHasCompleted] = useState(false);
   const [hasSaved, setHasSaved] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
+  const playSound = (soundUrl: string) => {
+    const audio = new Audio(soundUrl);
+    audio.volume = 0.4;
+    audio.play().catch(e => console.log('Audio play blocked by browser:', e));
+  };
 
   useEffect(() => {
     if (statusMessage) {
@@ -140,6 +153,7 @@ export default function App() {
       }
       
       console.log('Score update successful:', data);
+      playSound(SOUNDS.success);
       setHasSaved(true);
       setHasCompleted(true);
       setStatusMessage({ type: 'success', text: 'Score saved successfully!' });
@@ -171,6 +185,9 @@ export default function App() {
     
     if (correct) {
       setCorrectCount(prev => prev + 1);
+      playSound(SOUNDS.correct);
+    } else {
+      playSound(SOUNDS.incorrect);
     }
     
     // Move to next question after a short delay regardless of answer
