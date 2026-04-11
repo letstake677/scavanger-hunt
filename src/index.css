@@ -6,9 +6,7 @@
 }
 
 @layer base {
-  html, body {
+  html {
     scroll-behavior: smooth;
-    min-width: 1200px;
-    overflow-x: auto;
   }
 }

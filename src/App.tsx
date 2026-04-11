@@ -234,8 +234,8 @@ export default function App() {
           <span className="text-2xl font-extrabold text-white">verse</span>
         </div>
         
-        {/* Desktop Links (Now Always Visible) */}
-        <div className="flex items-center gap-8">
+        {/* Desktop Links */}
+        <div className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
             <a 
               key={link.name} 
@@ -248,7 +248,7 @@ export default function App() {
           
             {isConnected ? (
               <div className="flex items-center gap-3">
-                <div className="flex flex-col items-end mr-2">
+                <div className="hidden lg:flex flex-col items-end mr-2">
                   <span className="text-white text-xs font-bold">{address?.slice(0, 6) + '...' + address?.slice(-4)}</span>
                   {balance && (
                     <span className="text-purple-300 text-[10px] font-mono">
@@ -273,10 +273,91 @@ export default function App() {
             )}
         </div>
 
-        {/* Mobile Toggle Removed */}
+        {/* Mobile Toggle */}
+        <div className="md:hidden flex items-center gap-4">
+          <button 
+            onClick={() => {
+              console.log('Mobile Join button clicked');
+              try { modal.open(); } catch (e) { console.error(e); }
+            }}
+            className="bg-gradient-to-br from-purple-500 to-purple-400 text-white px-5 py-2 rounded-full font-bold text-sm hover:scale-105 transition-transform shadow-[0_4px_20px_rgba(168,85,247,0.5)]"
+          >
+            {isConnected ? address?.slice(0, 4) + '...' : 'Join'}
+          </button>
+          <button 
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="text-white p-2 hover:bg-white/10 rounded-lg transition-colors"
+          >
+            {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
+        </div>
       </nav>
 
-      {/* Mobile Menu Overlay Removed */}
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed inset-0 z-40 md:hidden pt-24 px-6 bg-[#1a0a3e]/95 backdrop-blur-xl"
+          >
+            <div className="flex flex-col gap-6">
+              {isConnected && (
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-purple-300 text-xs font-bold uppercase">Wallet Connected</span>
+                    <button 
+                      onClick={() => modal.open({ view: 'Account' })}
+                      className="text-white text-xs font-bold underline"
+                    >
+                      Manage
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center">
+                      <User size={20} className="text-purple-400" />
+                    </div>
+                    <div>
+                      <p className="text-white font-bold text-sm">{address?.slice(0, 6)}...{address?.slice(-4)}</p>
+                      {balance && (
+                        <p className="text-purple-300 text-xs font-mono">
+                          {parseFloat(formatEther(balance.value)).toFixed(4)} {balance.symbol}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {navLinks.map((link) => (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  onClick={() => setIsMenuOpen(false)}
+                  className="text-2xl font-bold text-white hover:text-purple-400 transition-colors border-b border-white/5 pb-4"
+                >
+                  {link.name}
+                </a>
+              ))}
+              
+              <button 
+                onClick={() => {
+                  if (!isConnected) {
+                    modal.open();
+                  } else {
+                    startHunt();
+                  }
+                  setIsMenuOpen(false);
+                }}
+                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-4 rounded-2xl font-bold text-lg shadow-xl"
+              >
+                {isConnected ? (hasCompleted ? 'Play Again' : 'Start Hunting') : 'Connect Wallet'}
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Hero Section */}
       <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-5 pt-32 pb-20 overflow-hidden">
@@ -560,7 +641,7 @@ export default function App() {
 
       {/* Footer */}
       <footer className="relative z-10 bg-[#1a0a3e]/80 backdrop-blur-md border-t border-white/10 py-12 px-5">
-        <div className="max-w-6xl mx-auto flex flex-row items-center justify-between gap-8">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="flex items-center gap-2.5">
             <img 
               src="https://i.ibb.co/DHd07RDx/logo.png" 
