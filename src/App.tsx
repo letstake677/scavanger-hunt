@@ -453,7 +453,7 @@ export default function App() {
       </AnimatePresence>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex flex-col items-center justify-start text-center px-5 pt-32 md:pt-40 pb-20 overflow-hidden">
+      <section className="relative min-h-[70vh] flex flex-col items-center justify-start text-center px-5 pt-20 md:pt-24 pb-8 overflow-hidden">
         {/* Floating Decorative Elements */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <motion.div 
@@ -540,126 +540,68 @@ export default function App() {
             </a>
           </div>
 
-          {/* Stats / Highlights */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 max-w-4xl mx-auto">
-            {[
-              { label: 'Active Hunters', value: '12.5K+', icon: User, color: 'text-blue-400' },
-              { label: 'Total Prizes', value: '$50,000', icon: Gift, color: 'text-pink-400' },
-              { label: 'Cities Covered', value: '45+', icon: MapPin, color: 'text-green-400' },
-              { label: 'Success Rate', value: '98%', icon: CheckCircle2, color: 'text-yellow-400' }
-            ].map((stat, i) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 + (i * 0.1) }}
-                className="bg-white/5 backdrop-blur-sm border border-white/10 p-4 rounded-2xl"
-              >
-                <stat.icon className={`${stat.color} w-6 h-6 mx-auto mb-2`} />
-                <div className="text-2xl font-black text-white">{stat.value}</div>
-                <div className="text-[10px] text-purple-300 uppercase font-bold tracking-widest">{stat.label}</div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
+          {/* Progress Bar in Hero */}
+          {isConnected && (
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="max-w-2xl mx-auto bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-2xl overflow-hidden relative"
+            >
+              {/* Lion Background Decoration */}
+              <div className="absolute top-[-10px] right-[-10px] opacity-10 rotate-12 pointer-events-none">
+                <span className="text-6xl">🦁</span>
+              </div>
 
-        {/* Scroll Indicator */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5 }}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-        >
-          <span className="text-purple-300 text-[10px] font-bold uppercase tracking-[0.2em]">Scroll to explore</span>
-          <motion.div 
-            animate={{ y: [0, 10, 0] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="w-1 h-10 bg-gradient-to-b from-purple-500 to-transparent rounded-full"
-          />
+              <div className="flex items-center justify-between gap-4 mb-4 relative z-10">
+                <div className="text-left">
+                  <h2 className="text-lg md:text-xl font-black text-white flex items-center gap-2">
+                    Hunter Progress <span className="text-yellow-400 animate-bounce">🦁</span>
+                  </h2>
+                  <p className="text-purple-300 text-[10px] md:text-xs font-medium">
+                    Earn <span className="text-white font-bold">1,000 points</span> for 5 Scratchers!
+                  </p>
+                </div>
+                <div className="bg-purple-500/20 border border-purple-500/30 px-4 py-1.5 rounded-xl">
+                  <span className="text-lg font-black text-purple-300">
+                    {userScore.toLocaleString()} / 1,000
+                  </span>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="relative h-4 bg-white/5 rounded-full overflow-hidden border border-white/10 p-0.5">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.min((userScore / 1000) * 100, 100)}%` }}
+                  transition={{ duration: 2, ease: "circOut" }}
+                  className="h-full rounded-full bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 relative shadow-[0_0_20px_rgba(168,85,247,0.4)]"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent" />
+                </motion.div>
+              </div>
+
+              {/* Reward Message */}
+              <AnimatePresence>
+                {userScore >= 1000 && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="mt-4 bg-yellow-400/10 border border-yellow-400/30 p-3 rounded-xl text-center relative z-10"
+                  >
+                    <p className="text-yellow-400 font-bold text-xs">
+                      5 scratchers won! Wait, JT is sending your reward. Keep patience! 🦁
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          )}
         </motion.div>
       </section>
 
-      {/* Progress Section */}
-      {isConnected && (
-        <section className="relative z-10 px-5 py-10">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="max-w-4xl mx-auto bg-[#1a0a3e]/60 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl overflow-hidden relative"
-          >
-            {/* Lion Background Decoration */}
-            <div className="absolute top-[-20px] right-[-20px] opacity-10 rotate-12 pointer-events-none">
-              <span className="text-9xl">🦁</span>
-            </div>
-
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8 relative z-10">
-              <div className="text-left">
-                <h2 className="text-2xl md:text-3xl font-black text-white mb-2 flex items-center gap-3">
-                  Hunter Progress <span className="text-yellow-400 animate-bounce">🦁</span>
-                </h2>
-                <p className="text-purple-300 text-sm md:text-base font-medium">
-                  Earn <span className="text-white font-bold">1,000 points</span> to unlock 5 Verse Scratchers!
-                </p>
-              </div>
-              <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 px-8 py-3 rounded-2xl backdrop-blur-md">
-                <span className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
-                  {userScore.toLocaleString()} / 1,000
-                </span>
-              </div>
-            </div>
-
-            {/* Progress Bar Container */}
-            <div className="relative h-8 bg-white/5 rounded-2xl overflow-hidden border border-white/10 mb-8 p-1">
-              <motion.div 
-                initial={{ width: 0 }}
-                animate={{ width: `${Math.min((userScore / 1000) * 100, 100)}%` }}
-                transition={{ duration: 2, ease: "circOut" }}
-                className="h-full rounded-xl bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 relative shadow-[0_0_30px_rgba(168,85,247,0.4)]"
-              >
-                {/* Shine Effect */}
-                <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent" />
-                <motion.div 
-                  animate={{ x: ['-100%', '200%'] }}
-                  transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                  className="absolute inset-y-0 w-20 bg-white/20 skew-x-12"
-                />
-              </motion.div>
-              
-              {/* Milestone Markers */}
-              <div className="absolute inset-0 flex justify-between px-4 pointer-events-none items-center">
-                {[250, 500, 750].map(m => (
-                  <div key={m} className="h-4 w-1 bg-white/20 rounded-full" />
-                ))}
-              </div>
-            </div>
-
-            {/* Reward Message */}
-            <AnimatePresence>
-              {userScore >= 1000 && (
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  className="relative"
-                >
-                  <div className="absolute inset-0 bg-yellow-400/20 blur-2xl rounded-full" />
-                  <div className="bg-gradient-to-br from-yellow-400/10 to-orange-500/10 border-2 border-yellow-400/40 p-8 rounded-3xl text-center relative z-10 backdrop-blur-xl">
-                    <div className="text-5xl mb-4">🎁</div>
-                    <p className="text-yellow-400 font-black text-xl md:text-2xl leading-relaxed">
-                      5 scratchers won! <br className="hidden md:block" />
-                      Wait, JT is sending your reward. <br />
-                      Keep patience, don't chase like a lion, our beloved JT. 🦁
-                    </p>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-        </section>
-      )}
-
       {/* How It Works Section */}
-      <section id="how" className="relative z-10 px-5 py-20 text-center">
+      <section id="how" className="relative z-10 px-5 py-12 text-center">
         <h2 className="text-3xl md:text-4xl font-extrabold mb-12 text-white drop-shadow-md">
           How It <span className="text-purple-400">Works</span>
         </h2>
@@ -732,7 +674,7 @@ export default function App() {
       </section>
 
       {/* Leaderboard Section */}
-      <section id="leaderboard" className="relative z-10 px-5 py-20 text-center">
+      <section id="leaderboard" className="relative z-10 px-5 py-12 text-center">
         <div className="max-w-4xl mx-auto bg-[#1a0a3e]/40 backdrop-blur-xl rounded-3xl border border-white/10 p-8 md:p-12 shadow-2xl">
           <div className="flex items-center justify-center gap-3 mb-8">
             <Trophy className="text-yellow-400 w-8 h-8" />
