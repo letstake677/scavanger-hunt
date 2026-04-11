@@ -450,28 +450,130 @@ export default function App() {
       </AnimatePresence>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex flex-col items-center justify-start text-center px-5 pt-48 md:pt-64 pb-20 overflow-hidden">
-        <div className="relative z-10 max-w-3xl mx-auto">
-          <h1 className="text-5xl md:text-7xl font-black text-white leading-tight mb-4 drop-shadow-lg">
-            Join the <span className="bg-gradient-to-r from-pink-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent">Ultimate</span><br />Scavenger Hunt!
-          </h1>
-          <p className="text-purple-100 text-lg md:text-xl mb-8 drop-shadow-md max-w-2xl mx-auto">
-            Explore your city, solve clues, and win big prizes!
-          </p>
-          <button 
-            onClick={() => {
-              console.log('Hero Join button clicked');
-              if (!isConnected) {
-                modal.open();
-              } else {
-                startHunt();
-              }
-            }}
-            className="bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 text-white px-11 py-4 rounded-full text-lg font-bold hover:scale-105 transition-transform shadow-[0_6px_30px_rgba(168,85,247,0.5)]"
+      <section className="relative min-h-screen flex flex-col items-center justify-start text-center px-5 pt-32 md:pt-40 pb-20 overflow-hidden">
+        {/* Floating Decorative Elements */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <motion.div 
+            animate={{ y: [0, -20, 0], rotate: [0, 10, 0] }}
+            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-[20%] left-[10%] md:left-[15%] text-purple-400/30"
           >
-            {isConnected ? (hasCompleted ? 'Play Again' : 'Start Hunting') : 'Connect Wallet'}
-          </button>
+            <MapPin size={64} />
+          </motion.div>
+          <motion.div 
+            animate={{ y: [0, 20, 0], rotate: [0, -15, 0] }}
+            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-[15%] right-[10%] md:right-[15%] text-pink-400/30"
+          >
+            <Trophy size={80} />
+          </motion.div>
+          <motion.div 
+            animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.5, 0.2] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute bottom-[30%] left-[5%] text-yellow-400/20"
+          >
+            <Sparkles size={100} />
+          </motion.div>
+          <motion.div 
+            animate={{ x: [0, 15, 0], y: [0, -15, 0] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute bottom-[40%] right-[5%] text-cyan-400/20"
+          >
+            <Gift size={70} />
+          </motion.div>
         </div>
+
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="relative z-10 max-w-4xl mx-auto"
+        >
+          {/* Badge */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
+            className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-1.5 rounded-full mb-8"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+            </span>
+            <span className="text-white text-xs font-bold tracking-wider uppercase">Live: Season 1 Now Active</span>
+          </motion.div>
+
+          <h1 className="text-6xl md:text-8xl font-black text-white leading-[0.9] mb-6 drop-shadow-2xl">
+            Join the <span className="bg-gradient-to-r from-pink-500 via-orange-400 to-yellow-400 bg-clip-text text-transparent">Ultimate</span><br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-b from-white to-white/60">Scavenger Hunt!</span>
+          </h1>
+          
+          <p className="text-purple-100 text-xl md:text-2xl mb-10 drop-shadow-md max-w-2xl mx-auto font-medium leading-relaxed">
+            Explore your city, solve mind-bending clues, and <span className="text-yellow-400 font-bold">win massive prizes</span> in the most exciting web3 adventure!
+          </p>
+
+          <div className="flex flex-col md:flex-row items-center justify-center gap-5 mb-16">
+            <button 
+              onClick={() => {
+                if (!isConnected) {
+                  modal.open();
+                } else {
+                  startHunt();
+                }
+              }}
+              className="group relative bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white px-12 py-5 rounded-2xl text-xl font-black hover:scale-105 transition-all shadow-[0_10px_40px_rgba(168,85,247,0.4)] flex items-center gap-3 overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-12" />
+              {isConnected ? (hasCompleted ? 'Play Again' : 'Start Hunting') : 'Connect Wallet'}
+              <ArrowRight className="group-hover:translate-x-1 transition-transform" />
+            </button>
+            
+            <a 
+              href="#how"
+              className="text-white font-bold hover:text-purple-300 transition-colors flex items-center gap-2 px-6 py-3"
+            >
+              <Search size={20} />
+              How it works
+            </a>
+          </div>
+
+          {/* Stats / Highlights */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 max-w-4xl mx-auto">
+            {[
+              { label: 'Active Hunters', value: '12.5K+', icon: User, color: 'text-blue-400' },
+              { label: 'Total Prizes', value: '$50,000', icon: Gift, color: 'text-pink-400' },
+              { label: 'Cities Covered', value: '45+', icon: MapPin, color: 'text-green-400' },
+              { label: 'Success Rate', value: '98%', icon: CheckCircle2, color: 'text-yellow-400' }
+            ].map((stat, i) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 + (i * 0.1) }}
+                className="bg-white/5 backdrop-blur-sm border border-white/10 p-4 rounded-2xl"
+              >
+                <stat.icon className={`${stat.color} w-6 h-6 mx-auto mb-2`} />
+                <div className="text-2xl font-black text-white">{stat.value}</div>
+                <div className="text-[10px] text-purple-300 uppercase font-bold tracking-widest">{stat.label}</div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Scroll Indicator */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.5 }}
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+        >
+          <span className="text-purple-300 text-[10px] font-bold uppercase tracking-[0.2em]">Scroll to explore</span>
+          <motion.div 
+            animate={{ y: [0, 10, 0] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="w-1 h-10 bg-gradient-to-b from-purple-500 to-transparent rounded-full"
+          />
+        </motion.div>
       </section>
 
       {/* How It Works Section */}
