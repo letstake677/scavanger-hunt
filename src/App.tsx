@@ -564,7 +564,7 @@ export default function App() {
                 </div>
                 <div className="bg-purple-500/20 border border-purple-500/30 px-4 py-1.5 rounded-xl">
                   <span className="text-lg font-black text-purple-300">
-                    {userScore.toLocaleString()} / 1,000
+                    {Math.min(userScore, 1000).toLocaleString()} / 1,000
                   </span>
                 </div>
               </div>
