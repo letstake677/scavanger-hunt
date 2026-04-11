@@ -450,7 +450,7 @@ export default function App() {
       </AnimatePresence>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-5 pt-32 pb-20 overflow-hidden">
+      <section className="relative min-h-screen flex flex-col items-center justify-start text-center px-5 pt-48 md:pt-64 pb-20 overflow-hidden">
         <div className="relative z-10 max-w-3xl mx-auto">
           <h1 className="text-5xl md:text-7xl font-black text-white leading-tight mb-4 drop-shadow-lg">
             Join the <span className="bg-gradient-to-r from-pink-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent">Ultimate</span><br />Scavenger Hunt!
