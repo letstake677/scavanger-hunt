@@ -53,6 +53,7 @@ export default function App() {
   const [showHint, setShowHint] = useState(false);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [isFinished, setIsFinished] = useState(false);
+  const [correctCount, setCorrectCount] = useState(0);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [username, setUsername] = useState('');
   const [hasCompleted, setHasCompleted] = useState(false);
@@ -119,7 +120,7 @@ export default function App() {
         body: JSON.stringify({
           address: normalizedAddress,
           username: username || address?.slice(0, 6) || "Hunter",
-          scoreIncrement: 100
+          scoreIncrement: correctCount * 25 // 25 points per correct answer (total 100 for 4 questions)
         })
       });
       
@@ -152,11 +153,13 @@ export default function App() {
   const startHunt = () => {
     setIsHuntActive(true);
     setCurrentStep(0);
+    setCorrectCount(0);
     setSelectedOption(null);
     setShowHint(false);
     setIsFinished(false);
     setIsMenuOpen(false);
-    setHasSaved(false); // Reset save state for new hunt attempt
+    setHasSaved(false);
+    setIsCorrect(null);
   };
 
   const handleOptionSelect = (option: string) => {
@@ -164,28 +167,23 @@ export default function App() {
     setSelectedOption(option);
     
     const correct = option === HUNT_QUESTIONS[currentStep].answer;
+    setIsCorrect(correct);
     
     if (correct) {
-      setIsCorrect(true);
-      setTimeout(() => {
-        if (currentStep < HUNT_QUESTIONS.length - 1) {
-          setCurrentStep(prev => prev + 1);
-          setSelectedOption(null);
-          setShowHint(false);
-          setIsCorrect(null);
-        } else {
-          setIsFinished(true);
-          // We don't call updateScore here anymore, 
-          // we wait for the user to click "Claim Reward" to avoid double calls
-        }
-      }, 1000);
-    } else {
-      setIsCorrect(false);
-      setTimeout(() => {
-        setIsCorrect(null);
-        setSelectedOption(null);
-      }, 1000);
+      setCorrectCount(prev => prev + 1);
     }
+    
+    // Move to next question after a short delay regardless of answer
+    setTimeout(() => {
+      if (currentStep < HUNT_QUESTIONS.length - 1) {
+        setCurrentStep(prev => prev + 1);
+        setSelectedOption(null);
+        setShowHint(false);
+        setIsCorrect(null);
+      } else {
+        setIsFinished(true);
+      }
+    }, 1000);
   };
 
   const navLinks = [
@@ -601,9 +599,14 @@ export default function App() {
                   <div className="w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-orange-500/20">
                     <Trophy size={40} className="text-white" />
                   </div>
-                  <h3 className="text-3xl font-black text-white mb-4">Hunt Completed!</h3>
+                  <h3 className="text-3xl font-black text-white mb-2">Hunt Completed!</h3>
+                  <div className="inline-block bg-purple-500/20 border border-purple-500/30 px-6 py-2 rounded-full mb-6">
+                    <span className="text-2xl font-black text-purple-400">Result: {correctCount} / {HUNT_QUESTIONS.length}</span>
+                  </div>
                   <p className="text-purple-200 mb-6 leading-relaxed">
-                    Amazing job, Hunter! You've solved all the clues and discovered the secrets of the Verse ecosystem.
+                    {correctCount === HUNT_QUESTIONS.length 
+                      ? "Perfect! You're a true Verse expert. Claim your reward below!" 
+                      : `Good effort! You got ${correctCount} out of ${HUNT_QUESTIONS.length} correct. Claim your score below!`}
                   </p>
                   
                   <div className="mb-8">
