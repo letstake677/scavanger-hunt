@@ -600,6 +600,58 @@ export default function App() {
         </motion.div>
       </section>
 
+      {/* Rewards Wallet Section */}
+      <section className="relative z-10 px-5 py-8 text-center">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          className="max-w-4xl mx-auto bg-gradient-to-br from-indigo-900/90 to-purple-900/90 backdrop-blur-xl rounded-3xl border-2 border-indigo-500/30 p-8 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-hidden"
+        >
+          {/* Decorative Background Icon */}
+          <div className="absolute top-[-20px] left-[-20px] opacity-10 rotate-[-12deg] pointer-events-none">
+            <Wallet size={160} className="text-indigo-400" />
+          </div>
+
+          <div className="relative z-10">
+            <div className="inline-flex items-center gap-2 bg-indigo-500/20 border border-indigo-500/30 px-4 py-1.5 rounded-full mb-6">
+              <Wallet className="text-indigo-400 w-4 h-4" />
+              <span className="text-indigo-200 text-xs font-bold tracking-wider uppercase">Rewards Setup</span>
+            </div>
+
+            <h2 className="text-2xl md:text-4xl font-black text-white mb-4">
+              Don't forget to add your rewards wallet to <a href="https://hub.vgdh.io" target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:text-indigo-300 underline underline-offset-4 transition-colors">hub.vgdh.io</a>!
+            </h2>
+            
+            <div className="bg-black/20 rounded-2xl p-6 md:p-8 mt-8 text-left border border-white/5">
+              <h3 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
+                <CheckCircle2 className="text-green-400 w-5 h-5" />
+                How to add your rewards wallet:
+              </h3>
+              <ul className="space-y-4">
+                {[
+                  { step: 1, text: <>Visit <a href="https://hub.vgdh.io" target="_blank" rel="noopener noreferrer" className="text-indigo-400 font-bold hover:underline">hub.vgdh.io</a></> },
+                  { step: 2, text: "Sign in with email, GitHub or Discord account" },
+                  { step: 3, text: "Visit /rewards section" },
+                  { step: 4, text: "Connect Polygon rewards wallet > Sign to confirm" }
+                ].map((item) => (
+                  <li key={item.step} className="flex items-start gap-4 group">
+                    <div className="w-6 h-6 rounded-full bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-indigo-500 group-hover:text-white transition-all">
+                      {item.step}
+                    </div>
+                    <p className="text-purple-100 font-medium">{item.text}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <p className="mt-8 text-purple-300 text-sm italic">
+              * Make sure to use the same wallet you use for hunting to ensure rewards are synced correctly.
+            </p>
+          </div>
+        </motion.div>
+      </section>
+
       {/* How It Works Section */}
       <section id="how" className="relative z-10 px-5 py-12 text-center">
         <h2 className="text-3xl md:text-4xl font-extrabold mb-12 text-white drop-shadow-md">
@@ -671,58 +723,6 @@ export default function App() {
           </div>
 
         </div>
-      </section>
-
-      {/* Rewards Wallet Section */}
-      <section className="relative z-10 px-5 py-8 text-center">
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          className="max-w-4xl mx-auto bg-gradient-to-br from-indigo-900/90 to-purple-900/90 backdrop-blur-xl rounded-3xl border-2 border-indigo-500/30 p-8 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-hidden"
-        >
-          {/* Decorative Background Icon */}
-          <div className="absolute top-[-20px] left-[-20px] opacity-10 rotate-[-12deg] pointer-events-none">
-            <Wallet size={160} className="text-indigo-400" />
-          </div>
-
-          <div className="relative z-10">
-            <div className="inline-flex items-center gap-2 bg-indigo-500/20 border border-indigo-500/30 px-4 py-1.5 rounded-full mb-6">
-              <Wallet className="text-indigo-400 w-4 h-4" />
-              <span className="text-indigo-200 text-xs font-bold tracking-wider uppercase">Rewards Setup</span>
-            </div>
-
-            <h2 className="text-2xl md:text-4xl font-black text-white mb-4">
-              Don't forget to add your rewards wallet to <a href="https://hub.vgdh.io" target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:text-indigo-300 underline underline-offset-4 transition-colors">hub.vgdh.io</a>!
-            </h2>
-            
-            <div className="bg-black/20 rounded-2xl p-6 md:p-8 mt-8 text-left border border-white/5">
-              <h3 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
-                <CheckCircle2 className="text-green-400 w-5 h-5" />
-                How to add your rewards wallet:
-              </h3>
-              <ul className="space-y-4">
-                {[
-                  { step: 1, text: <>Visit <a href="https://hub.vgdh.io" target="_blank" rel="noopener noreferrer" className="text-indigo-400 font-bold hover:underline">hub.vgdh.io</a></> },
-                  { step: 2, text: "Sign in with email, GitHub or Discord account" },
-                  { step: 3, text: "Visit /rewards section" },
-                  { step: 4, text: "Connect Polygon rewards wallet > Sign to confirm" }
-                ].map((item) => (
-                  <li key={item.step} className="flex items-start gap-4 group">
-                    <div className="w-6 h-6 rounded-full bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-indigo-500 group-hover:text-white transition-all">
-                      {item.step}
-                    </div>
-                    <p className="text-purple-100 font-medium">{item.text}</p>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <p className="mt-8 text-purple-300 text-sm italic">
-              * Make sure to use the same wallet you use for hunting to ensure rewards are synced correctly.
-            </p>
-          </div>
-        </motion.div>
       </section>
 
       {/* Leaderboard Section */}
