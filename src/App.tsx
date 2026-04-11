@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Menu, X, Trophy, MapPin, Search, Gift, Lightbulb, CheckCircle2, ArrowRight, Sparkles, User, Mail, MessageCircle, Twitter, Send, ExternalLink, ShieldAlert, Clock, Edit2 } from 'lucide-react';
+import { Menu, X, Trophy, MapPin, Search, Gift, Lightbulb, CheckCircle2, ArrowRight, Sparkles, User, Mail, MessageCircle, Twitter, Send, ExternalLink, ShieldAlert, Clock, Edit2, Wallet } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAccount, useDisconnect, useBalance } from 'wagmi'
 import { modal } from './config/reown'
@@ -546,7 +546,7 @@ export default function App() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="max-w-2xl mx-auto bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-2xl overflow-hidden relative"
+              className="max-w-2xl mx-auto bg-[#1a0a3e]/90 backdrop-blur-xl border border-white/20 rounded-2xl p-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden relative"
             >
               {/* Lion Background Decoration */}
               <div className="absolute top-[-10px] right-[-10px] opacity-10 rotate-12 pointer-events-none">
@@ -608,7 +608,7 @@ export default function App() {
         <div className="flex justify-center gap-8 flex-wrap max-w-6xl mx-auto">
           
           {/* Card 1 */}
-          <div className="bg-[#1a0a3e]/60 backdrop-blur-md rounded-2xl w-72 shadow-[0_8px_32px_rgba(0,0,0,0.3)] overflow-hidden hover:-translate-y-2 transition-all duration-300 border border-white/10 text-left flex flex-col group">
+          <div className="bg-[#1a0a3e]/95 backdrop-blur-md rounded-2xl w-72 shadow-[0_15px_40px_rgba(0,0,0,0.4)] overflow-hidden hover:-translate-y-2 transition-all duration-300 border border-white/20 text-left flex flex-col group">
             <div className="h-48 overflow-hidden shrink-0">
               <img 
                 src="https://i.ibb.co/S7JPd914/step1.jpg" 
@@ -629,7 +629,7 @@ export default function App() {
           </div>
 
           {/* Card 2 */}
-          <div className="bg-[#1a0a3e]/60 backdrop-blur-md rounded-2xl w-72 shadow-[0_8px_32px_rgba(0,0,0,0.3)] overflow-hidden hover:-translate-y-2 transition-all duration-300 border border-white/10 text-left flex flex-col group">
+          <div className="bg-[#1a0a3e]/95 backdrop-blur-md rounded-2xl w-72 shadow-[0_15px_40px_rgba(0,0,0,0.4)] overflow-hidden hover:-translate-y-2 transition-all duration-300 border border-white/20 text-left flex flex-col group">
             <div className="h-48 overflow-hidden shrink-0">
               <img 
                 src="https://i.ibb.co/d0DqW3vp/step2.jpg" 
@@ -650,7 +650,7 @@ export default function App() {
           </div>
 
           {/* Card 3 */}
-          <div className="bg-[#1a0a3e]/60 backdrop-blur-md rounded-2xl w-72 shadow-[0_8px_32px_rgba(0,0,0,0.3)] overflow-hidden hover:-translate-y-2 transition-all duration-300 border border-white/10 text-left flex flex-col group">
+          <div className="bg-[#1a0a3e]/95 backdrop-blur-md rounded-2xl w-72 shadow-[0_15px_40px_rgba(0,0,0,0.4)] overflow-hidden hover:-translate-y-2 transition-all duration-300 border border-white/20 text-left flex flex-col group">
             <div className="h-48 overflow-hidden shrink-0">
               <img 
                 src="https://i.ibb.co/C3F85gRz/step3.jpg" 
@@ -673,9 +673,61 @@ export default function App() {
         </div>
       </section>
 
+      {/* Rewards Wallet Section */}
+      <section className="relative z-10 px-5 py-8 text-center">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          className="max-w-4xl mx-auto bg-gradient-to-br from-indigo-900/90 to-purple-900/90 backdrop-blur-xl rounded-3xl border-2 border-indigo-500/30 p-8 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-hidden"
+        >
+          {/* Decorative Background Icon */}
+          <div className="absolute top-[-20px] left-[-20px] opacity-10 rotate-[-12deg] pointer-events-none">
+            <Wallet size={160} className="text-indigo-400" />
+          </div>
+
+          <div className="relative z-10">
+            <div className="inline-flex items-center gap-2 bg-indigo-500/20 border border-indigo-500/30 px-4 py-1.5 rounded-full mb-6">
+              <Wallet className="text-indigo-400 w-4 h-4" />
+              <span className="text-indigo-200 text-xs font-bold tracking-wider uppercase">Rewards Setup</span>
+            </div>
+
+            <h2 className="text-2xl md:text-4xl font-black text-white mb-4">
+              Don't forget to add your rewards wallet to <a href="https://hub.vgdh.io" target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:text-indigo-300 underline underline-offset-4 transition-colors">hub.vgdh.io</a>!
+            </h2>
+            
+            <div className="bg-black/20 rounded-2xl p-6 md:p-8 mt-8 text-left border border-white/5">
+              <h3 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
+                <CheckCircle2 className="text-green-400 w-5 h-5" />
+                How to add your rewards wallet:
+              </h3>
+              <ul className="space-y-4">
+                {[
+                  { step: 1, text: <>Visit <a href="https://hub.vgdh.io" target="_blank" rel="noopener noreferrer" className="text-indigo-400 font-bold hover:underline">hub.vgdh.io</a></> },
+                  { step: 2, text: "Sign in with email, GitHub or Discord account" },
+                  { step: 3, text: "Visit /rewards section" },
+                  { step: 4, text: "Connect Polygon rewards wallet > Sign to confirm" }
+                ].map((item) => (
+                  <li key={item.step} className="flex items-start gap-4 group">
+                    <div className="w-6 h-6 rounded-full bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-indigo-500 group-hover:text-white transition-all">
+                      {item.step}
+                    </div>
+                    <p className="text-purple-100 font-medium">{item.text}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <p className="mt-8 text-purple-300 text-sm italic">
+              * Make sure to use the same wallet you use for hunting to ensure rewards are synced correctly.
+            </p>
+          </div>
+        </motion.div>
+      </section>
+
       {/* Leaderboard Section */}
       <section id="leaderboard" className="relative z-10 px-5 py-12 text-center">
-        <div className="max-w-4xl mx-auto bg-[#1a0a3e]/40 backdrop-blur-xl rounded-3xl border border-white/10 p-8 md:p-12 shadow-2xl">
+        <div className="max-w-4xl mx-auto bg-[#1a0a3e]/90 backdrop-blur-xl rounded-3xl border border-white/20 p-8 md:p-12 shadow-[0_20px_60px_rgba(0,0,0,0.6)]">
           <div className="flex items-center justify-center gap-3 mb-8">
             <Trophy className="text-yellow-400 w-8 h-8" />
             <h2 className="text-3xl md:text-4xl font-extrabold text-white">Top <span className="text-purple-400">Hunters</span></h2>
@@ -684,7 +736,7 @@ export default function App() {
           <div className="space-y-4">
             {leaderboard.length > 0 ? (
               leaderboard.map((user, index) => (
-                <div key={user.address} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors group">
+                <div key={user.address} className="flex items-center justify-between p-4 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/20 transition-colors group">
                   <div className="flex items-center gap-4">
                     <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${
                       index === 0 ? 'from-yellow-400 to-orange-500' : 
