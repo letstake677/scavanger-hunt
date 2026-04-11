@@ -68,6 +68,8 @@ export default function App() {
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
+  const [isDocsModalOpen, setIsDocsModalOpen] = useState(false);
 
   const playSound = (soundUrl: string) => {
     const audio = new Audio(soundUrl);
@@ -781,6 +783,294 @@ export default function App() {
         )}
       </AnimatePresence>
 
+      {/* Terms of Service Modal */}
+      <AnimatePresence>
+        {isTermsModalOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-[#0a051a]/95 backdrop-blur-md"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className="bg-[#1a0a3e] border border-white/10 w-full max-w-2xl max-h-[80vh] rounded-3xl overflow-hidden shadow-2xl relative flex flex-col"
+            >
+              <div className="p-6 border-b border-white/10 flex items-center justify-between bg-white/5">
+                <h3 className="text-xl font-bold text-white">Terms of Service</h3>
+                <button 
+                  onClick={() => setIsTermsModalOpen(false)}
+                  className="text-purple-300 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-full"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+              
+              <div className="p-8 overflow-y-auto custom-scrollbar text-purple-100/90 space-y-6">
+                <div>
+                  <h4 className="text-white font-bold text-lg mb-2">Terms of Service – Verse Scavenger Hunt</h4>
+                  <p className="text-sm text-purple-300">Effective Date: 10 Apr 2026</p>
+                </div>
+
+                <p className="text-sm leading-relaxed">
+                  Welcome to the Verse Scavenger Hunt. By participating in this event, you agree to the following Terms of Service. Please read them carefully.
+                </p>
+
+                <section>
+                  <h5 className="text-white font-bold mb-2">1. Eligibility</h5>
+                  <ul className="list-disc pl-5 space-y-1 text-sm">
+                    <li>Participants must be at least 13 years old</li>
+                    <li>Participants must comply with all local laws and regulations</li>
+                    <li>Only one account per user is allowed (no duplicate or fake accounts)</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h5 className="text-white font-bold mb-2">2. Participation Rules</h5>
+                  <ul className="list-disc pl-5 space-y-1 text-sm">
+                    <li>All tasks must be completed honestly and fairly</li>
+                    <li>Any form of cheating, bot usage, or manipulation will result in disqualification</li>
+                    <li>Submitted content must be original and not infringe on any copyrights</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h5 className="text-white font-bold mb-2">3. Rewards & Prizes</h5>
+                  <ul className="list-disc pl-5 space-y-1 text-sm">
+                    <li>Rewards will be distributed based on performance, engagement, and quality</li>
+                    <li>The organizers reserve the right to verify entries before awarding prizes</li>
+                    <li>Any fraudulent activity will result in forfeiture of rewards</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h5 className="text-white font-bold mb-2">4. User Conduct</h5>
+                  <p className="text-sm">By participating, you agree not to:</p>
+                  <ul className="list-disc pl-5 space-y-1 text-sm mt-2">
+                    <li>Post harmful, abusive, or offensive content</li>
+                    <li>Engage in spam or misleading activities</li>
+                    <li>Violate any laws or platform guidelines</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h5 className="text-white font-bold mb-2">5. Intellectual Property</h5>
+                  <ul className="list-disc pl-5 space-y-1 text-sm">
+                    <li>Participants retain ownership of their content</li>
+                    <li>By submitting content, you grant us permission to use, share, and promote it for marketing and promotional purposes</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h5 className="text-white font-bold mb-2">6. Limitation of Liability</h5>
+                  <p className="text-sm">
+                    We are not responsible for any losses, damages, or issues arising from participation. Participation is at your own risk.
+                  </p>
+                </section>
+
+                <section>
+                  <h5 className="text-white font-bold mb-2">7. Termination</h5>
+                  <p className="text-sm">We reserve the right to:</p>
+                  <ul className="list-disc pl-5 space-y-1 text-sm mt-2">
+                    <li>Disqualify any participant who violates these terms</li>
+                    <li>Modify or cancel the event at any time without prior notice</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h5 className="text-white font-bold mb-2">8. Changes to Terms</h5>
+                  <p className="text-sm">
+                    We may update these Terms of Service at any time. Continued participation means you accept the updated terms.
+                  </p>
+                </section>
+
+                <section>
+                  <h5 className="text-white font-bold mb-2">9. Contact</h5>
+                  <p className="text-sm">If you have any questions regarding these Terms:</p>
+                  <p className="text-purple-400 font-bold mt-1">Email: joel@bitcoin.com</p>
+                </section>
+
+                <p className="text-xs text-purple-400/60 pt-4 italic">
+                  By participating in the Verse Scavenger Hunt, you agree to these Terms of Service.
+                </p>
+              </div>
+
+              <div className="p-6 border-t border-white/10 bg-white/5 flex justify-end">
+                <button 
+                  onClick={() => setIsTermsModalOpen(false)}
+                  className="bg-purple-600 hover:bg-purple-500 text-white px-8 py-2.5 rounded-xl font-bold transition-colors shadow-lg"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Documentation Modal */}
+      <AnimatePresence>
+        {isDocsModalOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-[#0a051a]/95 backdrop-blur-md"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className="bg-[#1a0a3e] border border-white/10 w-full max-w-3xl max-h-[85vh] rounded-3xl overflow-hidden shadow-2xl relative flex flex-col"
+            >
+              <div className="p-6 border-b border-white/10 flex items-center justify-between bg-white/5">
+                <h3 className="text-xl font-bold text-white">Documentation</h3>
+                <button 
+                  onClick={() => setIsDocsModalOpen(false)}
+                  className="text-purple-300 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-full"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+              
+              <div className="p-8 overflow-y-auto custom-scrollbar text-purple-100/90 space-y-8">
+                <div>
+                  <h4 className="text-2xl font-black text-white mb-3">Verse Scavenger Hunt – Documentation</h4>
+                  <p className="text-sm text-purple-300">Official Guide & Resources</p>
+                </div>
+
+                <p className="text-sm leading-relaxed">
+                  Welcome to the official documentation for the Verse Scavenger Hunt. This guide will help you understand how the event works, how to participate, and how to maximize your chances of winning.
+                </p>
+
+                <section className="space-y-4">
+                  <div className="flex items-center gap-3 text-white font-bold text-lg">
+                    <ArrowRight className="text-purple-400" size={20} />
+                    <h5>🚀 Overview</h5>
+                  </div>
+                  <p className="text-sm pl-8">The Verse Scavenger Hunt is an interactive community event designed to increase engagement, educate users about the ecosystem, and reward active participants.</p>
+                </section>
+
+                <section className="space-y-4">
+                  <div className="flex items-center gap-3 text-white font-bold text-lg">
+                    <MapPin className="text-purple-400" size={20} />
+                    <h5>🎯 How It Works</h5>
+                  </div>
+                  <ol className="list-decimal pl-12 space-y-2 text-sm">
+                    <li>Join the event via official announcement</li>
+                    <li>Receive a list of tasks or missions</li>
+                    <li>Complete tasks on different platforms (Twitter/X, Telegram, etc.)</li>
+                    <li>Submit proof of completion</li>
+                    <li>Earn points based on engagement and quality</li>
+                  </ol>
+                </section>
+
+                <section className="space-y-4">
+                  <div className="flex items-center gap-3 text-white font-bold text-lg">
+                    <Search className="text-purple-400" size={20} />
+                    <h5>🧩 Types of Tasks</h5>
+                  </div>
+                  <ul className="list-disc pl-12 space-y-2 text-sm">
+                    <li>Posting memes or content</li>
+                    <li>Sharing educational posts</li>
+                    <li>Creating videos or reels</li>
+                    <li>Engaging with community posts</li>
+                  </ul>
+                </section>
+
+                <section className="space-y-4">
+                  <div className="flex items-center gap-3 text-white font-bold text-lg">
+                    <Trophy className="text-purple-400" size={20} />
+                    <h5>📊 Scoring System</h5>
+                  </div>
+                  <p className="text-sm pl-8 mb-2">Your performance is evaluated based on:</p>
+                  <ul className="list-disc pl-12 space-y-2 text-sm">
+                    <li>Engagement (likes, shares, comments, views)</li>
+                    <li>Content quality and creativity</li>
+                    <li>Consistency and participation frequency</li>
+                  </ul>
+                </section>
+
+                <section className="space-y-4">
+                  <div className="flex items-center gap-3 text-white font-bold text-lg">
+                    <Gift className="text-purple-400" size={20} />
+                    <h5>🏆 Rewards</h5>
+                  </div>
+                  <ul className="list-disc pl-12 space-y-2 text-sm">
+                    <li>Weekly or monthly winners</li>
+                    <li>Special bonuses for top performers</li>
+                    <li>Possible exclusive rewards for high-quality content</li>
+                  </ul>
+                </section>
+
+                <section className="space-y-4">
+                  <div className="flex items-center gap-3 text-white font-bold text-lg">
+                    <ShieldAlert className="text-purple-400" size={20} />
+                    <h5>⚠️ Rules & Guidelines</h5>
+                  </div>
+                  <ul className="list-disc pl-12 space-y-2 text-sm">
+                    <li>No fake engagement (bots, fake accounts)</li>
+                    <li>No plagiarism or copied content</li>
+                    <li>Follow platform rules and community guidelines</li>
+                  </ul>
+                </section>
+
+                <section className="space-y-4">
+                  <div className="flex items-center gap-3 text-white font-bold text-lg">
+                    <CheckCircle2 className="text-purple-400" size={20} />
+                    <h5>🔐 Submission Process</h5>
+                  </div>
+                  <ul className="list-disc pl-12 space-y-2 text-sm">
+                    <li>Submit your work through the official form or platform</li>
+                    <li>Ensure links are correct and accessible</li>
+                    <li>Late or incomplete submissions may not be considered</li>
+                  </ul>
+                </section>
+
+                <section className="bg-white/5 p-6 rounded-2xl space-y-4">
+                  <div className="flex items-center gap-3 text-white font-bold text-lg">
+                    <MessageCircle className="text-purple-400" size={20} />
+                    <h5>❓ FAQ</h5>
+                  </div>
+                  <div className="space-y-4 pl-8">
+                    <div>
+                      <p className="text-white font-bold text-sm">Q: Can I participate from multiple accounts?</p>
+                      <p className="text-sm text-purple-300">A: No, only one account per user is allowed.</p>
+                    </div>
+                    <div>
+                      <p className="text-white font-bold text-sm">Q: How are winners selected?</p>
+                      <p className="text-sm text-purple-300">A: Based on engagement, quality, and overall impact.</p>
+                    </div>
+                    <div>
+                      <p className="text-white font-bold text-sm">Q: When will rewards be distributed?</p>
+                      <p className="text-sm text-purple-300">A: After verification, usually within a few days of event completion.</p>
+                    </div>
+                  </div>
+                </section>
+
+                <section className="text-center pt-6">
+                  <p className="text-white font-bold mb-2">📩 Need Support?</p>
+                  <a href="mailto:joel@bitcoin.com" className="text-purple-400 font-bold hover:underline">joel@bitcoin.com</a>
+                </section>
+
+                <p className="text-center text-purple-400 font-bold text-xl pt-4 italic">
+                  Stay creative, stay active, and good luck in the Verse Scavenger Hunt 🚀
+                </p>
+              </div>
+
+              <div className="p-6 border-t border-white/10 bg-white/5 flex justify-end">
+                <button 
+                  onClick={() => setIsDocsModalOpen(false)}
+                  className="bg-purple-600 hover:bg-purple-500 text-white px-8 py-2.5 rounded-xl font-bold transition-colors shadow-lg"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Footer */}
       <footer className="relative z-10 bg-[#1a0a3e]/80 backdrop-blur-md border-t border-white/10 py-12 px-5">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
@@ -801,14 +1091,24 @@ export default function App() {
             >
               Privacy Policy
             </button>
-            <a href="#" className="text-purple-300/70 hover:text-white text-sm font-medium transition-colors">Terms of Service</a>
+            <button 
+              onClick={() => setIsTermsModalOpen(true)}
+              className="text-purple-300/70 hover:text-white text-sm font-medium transition-colors"
+            >
+              Terms of Service
+            </button>
             <button 
               onClick={() => setIsContactModalOpen(true)}
               className="text-purple-300/70 hover:text-white text-sm font-medium transition-colors"
             >
               Contact Us
             </button>
-            <a href="#" className="text-purple-300/70 hover:text-white text-sm font-medium transition-colors">Documentation</a>
+            <button 
+              onClick={() => setIsDocsModalOpen(true)}
+              className="text-purple-300/70 hover:text-white text-sm font-medium transition-colors"
+            >
+              Documentation
+            </button>
             <a href="#" className="text-purple-300/70 hover:text-white text-sm font-medium transition-colors">Community</a>
           </div>
 
