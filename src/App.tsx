@@ -1272,17 +1272,17 @@ export default function App() {
             <div className="flex items-center gap-6">
               <a href="https://www.bitcoin.com/" target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100 transition-opacity">
                 <img 
-                  src="https://api.studio.build/v1/attachments/ais-dev-khkvtbd6dp7kqg6fnwa6vj-21246162805.asia-southeast1.run.app/6803207c-939e-4364-8846-9f44b207567d" 
+                  src="https://i.ibb.co/mFcWbDLf/bitcoincom-logo-light-1.png" 
                   alt="Bitcoin.com" 
-                  className="h-10 w-auto object-contain"
+                  className="h-8 w-auto object-contain"
                   referrerPolicy="no-referrer"
                 />
               </a>
               <a href="https://www.getverse.com/" target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100 transition-opacity">
                 <img 
-                  src="https://api.studio.build/v1/attachments/ais-dev-khkvtbd6dp7kqg6fnwa6vj-21246162805.asia-southeast1.run.app/67f8936b-67f8-4770-9831-5079822a9693" 
+                  src="https://i.ibb.co/PSMbCRh/verse-logo-light-1.png" 
                   alt="GetVerse" 
-                  className="h-10 w-auto object-contain"
+                  className="h-8 w-auto object-contain"
                   referrerPolicy="no-referrer"
                 />
               </a>
