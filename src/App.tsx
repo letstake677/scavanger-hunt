@@ -1265,9 +1265,29 @@ export default function App() {
             </button>
           </div>
 
-          <p className="text-purple-300/40 text-xs font-medium">
-            &copy; 2026 Verse. All rights reserved.
-          </p>
+          <div className="flex flex-col items-center md:items-end gap-3">
+            <p className="text-purple-300/40 text-xs font-medium">
+              &copy; 2026 Verse. All rights reserved.
+            </p>
+            <div className="flex items-center gap-4">
+              <a href="https://www.bitcoin.com/" target="_blank" rel="noopener noreferrer" className="opacity-50 hover:opacity-100 transition-opacity">
+                <img 
+                  src="https://i.ibb.co/NnyBtV8c/bitcoin-logo.png" 
+                  alt="Bitcoin.com" 
+                  className="h-5 w-auto object-contain"
+                  referrerPolicy="no-referrer"
+                />
+              </a>
+              <a href="https://www.getverse.com/" target="_blank" rel="noopener noreferrer" className="opacity-50 hover:opacity-100 transition-opacity">
+                <img 
+                  src="https://i.ibb.co/TC1nhZ8/verse-logo.png" 
+                  alt="GetVerse" 
+                  className="h-5 w-auto object-contain"
+                  referrerPolicy="no-referrer"
+                />
+              </a>
+            </div>
+          </div>
         </div>
       </footer>
 
