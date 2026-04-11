@@ -1265,24 +1265,24 @@ export default function App() {
             </button>
           </div>
 
-          <div className="flex flex-col items-center md:items-end gap-3">
+          <div className="flex flex-col items-center md:items-end gap-4">
             <p className="text-purple-300/40 text-xs font-medium">
               &copy; 2026 Verse. All rights reserved.
             </p>
-            <div className="flex items-center gap-4">
-              <a href="https://www.bitcoin.com/" target="_blank" rel="noopener noreferrer" className="opacity-50 hover:opacity-100 transition-opacity">
+            <div className="flex items-center gap-6">
+              <a href="https://www.bitcoin.com/" target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100 transition-opacity">
                 <img 
-                  src="https://i.ibb.co/NnyBtV8c/bitcoin-logo.png" 
+                  src="https://api.studio.build/v1/attachments/ais-dev-khkvtbd6dp7kqg6fnwa6vj-21246162805.asia-southeast1.run.app/6803207c-939e-4364-8846-9f44b207567d" 
                   alt="Bitcoin.com" 
-                  className="h-5 w-auto object-contain"
+                  className="h-10 w-auto object-contain"
                   referrerPolicy="no-referrer"
                 />
               </a>
-              <a href="https://www.getverse.com/" target="_blank" rel="noopener noreferrer" className="opacity-50 hover:opacity-100 transition-opacity">
+              <a href="https://www.getverse.com/" target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100 transition-opacity">
                 <img 
-                  src="https://i.ibb.co/TC1nhZ8/verse-logo.png" 
+                  src="https://api.studio.build/v1/attachments/ais-dev-khkvtbd6dp7kqg6fnwa6vj-21246162805.asia-southeast1.run.app/67f8936b-67f8-4770-9831-5079822a9693" 
                   alt="GetVerse" 
-                  className="h-5 w-auto object-contain"
+                  className="h-10 w-auto object-contain"
                   referrerPolicy="no-referrer"
                 />
               </a>
