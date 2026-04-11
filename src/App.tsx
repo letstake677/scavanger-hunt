@@ -75,6 +75,7 @@ export default function App() {
   const [newUsername, setNewUsername] = useState('');
   const [newProfilePic, setNewProfilePic] = useState('');
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+  const [userScore, setUserScore] = useState(0);
 
   const playSound = (soundUrl: string) => {
     const audio = new Audio(soundUrl);
@@ -109,6 +110,7 @@ export default function App() {
         const data = await res.json();
         setHasCompleted(data.hasCompletedInitialHunt);
         if (data.username) setUsername(data.username);
+        if (data.score !== undefined) setUserScore(data.score);
       }
     } catch (err) {
       console.error('Failed to fetch user status:', err);
@@ -162,6 +164,7 @@ export default function App() {
       }
       
       console.log('Score update successful:', data);
+      if (data.score !== undefined) setUserScore(data.score);
       playSound(SOUNDS.success);
       setHasSaved(true);
       setHasCompleted(true);
@@ -576,6 +579,85 @@ export default function App() {
         </motion.div>
       </section>
 
+      {/* Progress Section */}
+      {isConnected && (
+        <section className="relative z-10 px-5 py-10">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="max-w-4xl mx-auto bg-[#1a0a3e]/60 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl overflow-hidden relative"
+          >
+            {/* Lion Background Decoration */}
+            <div className="absolute top-[-20px] right-[-20px] opacity-10 rotate-12 pointer-events-none">
+              <span className="text-9xl">🦁</span>
+            </div>
+
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8 relative z-10">
+              <div className="text-left">
+                <h2 className="text-2xl md:text-3xl font-black text-white mb-2 flex items-center gap-3">
+                  Hunter Progress <span className="text-yellow-400 animate-bounce">🦁</span>
+                </h2>
+                <p className="text-purple-300 text-sm md:text-base font-medium">
+                  Earn <span className="text-white font-bold">1,000 points</span> to unlock 5 Verse Scratchers!
+                </p>
+              </div>
+              <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 px-8 py-3 rounded-2xl backdrop-blur-md">
+                <span className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
+                  {userScore.toLocaleString()} / 1,000
+                </span>
+              </div>
+            </div>
+
+            {/* Progress Bar Container */}
+            <div className="relative h-8 bg-white/5 rounded-2xl overflow-hidden border border-white/10 mb-8 p-1">
+              <motion.div 
+                initial={{ width: 0 }}
+                animate={{ width: `${Math.min((userScore / 1000) * 100, 100)}%` }}
+                transition={{ duration: 2, ease: "circOut" }}
+                className="h-full rounded-xl bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 relative shadow-[0_0_30px_rgba(168,85,247,0.4)]"
+              >
+                {/* Shine Effect */}
+                <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent" />
+                <motion.div 
+                  animate={{ x: ['-100%', '200%'] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                  className="absolute inset-y-0 w-20 bg-white/20 skew-x-12"
+                />
+              </motion.div>
+              
+              {/* Milestone Markers */}
+              <div className="absolute inset-0 flex justify-between px-4 pointer-events-none items-center">
+                {[250, 500, 750].map(m => (
+                  <div key={m} className="h-4 w-1 bg-white/20 rounded-full" />
+                ))}
+              </div>
+            </div>
+
+            {/* Reward Message */}
+            <AnimatePresence>
+              {userScore >= 1000 && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  className="relative"
+                >
+                  <div className="absolute inset-0 bg-yellow-400/20 blur-2xl rounded-full" />
+                  <div className="bg-gradient-to-br from-yellow-400/10 to-orange-500/10 border-2 border-yellow-400/40 p-8 rounded-3xl text-center relative z-10 backdrop-blur-xl">
+                    <div className="text-5xl mb-4">🎁</div>
+                    <p className="text-yellow-400 font-black text-xl md:text-2xl leading-relaxed">
+                      5 scratchers won! <br className="hidden md:block" />
+                      Wait, JT is sending your reward. <br />
+                      Keep patience, don't chase like a lion, our beloved JT. 🦁
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        </section>
+      )}
+
       {/* How It Works Section */}
       <section id="how" className="relative z-10 px-5 py-20 text-center">
         <h2 className="text-3xl md:text-4xl font-extrabold mb-12 text-white drop-shadow-md">
@@ -791,21 +873,26 @@ export default function App() {
                   </AnimatePresence>
                 </div>
               ) : (
-                <div className="p-12 text-center">
-                  <div className="w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-orange-500/20">
+                <div className="p-12 text-center relative overflow-hidden">
+                  {/* Lion Background */}
+                  <div className="absolute top-0 right-0 opacity-5 pointer-events-none">
+                    <span className="text-9xl">🦁</span>
+                  </div>
+
+                  <div className="w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-orange-500/20 relative z-10">
                     <Trophy size={40} className="text-white" />
                   </div>
-                  <h3 className="text-3xl font-black text-white mb-2">Hunt Completed!</h3>
-                  <div className="inline-block bg-purple-500/20 border border-purple-500/30 px-6 py-2 rounded-full mb-6">
+                  <h3 className="text-3xl font-black text-white mb-2 relative z-10">Hunt Completed! 🦁</h3>
+                  <div className="inline-block bg-purple-500/20 border border-purple-500/30 px-6 py-2 rounded-full mb-6 relative z-10">
                     <span className="text-2xl font-black text-purple-400">Result: {correctCount} / {HUNT_QUESTIONS.length}</span>
                   </div>
-                  <p className="text-purple-200 mb-6 leading-relaxed">
+                  <p className="text-purple-200 mb-6 leading-relaxed relative z-10">
                     {correctCount === HUNT_QUESTIONS.length 
                       ? "Perfect! You're a true Verse expert. Claim your reward below!" 
                       : `Good effort! You got ${correctCount} out of ${HUNT_QUESTIONS.length} correct. Claim your score below!`}
                   </p>
                   
-                  <div className="mb-8">
+                  <div className="mb-8 relative z-10">
                     <label className="block text-purple-300 text-sm font-bold mb-2 text-left px-2">Set your Hunter Name</label>
                     <input 
                       type="text" 
@@ -824,7 +911,7 @@ export default function App() {
                       setIsHuntActive(false);
                     }}
                     disabled={hasSaved && isFinished}
-                    className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-4 rounded-2xl font-bold shadow-xl disabled:opacity-50"
+                    className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-4 rounded-2xl font-bold shadow-xl disabled:opacity-50 relative z-10"
                   >
                     {hasSaved ? 'Score Saved!' : 'Claim Your Reward & Save Score'}
                   </button>
