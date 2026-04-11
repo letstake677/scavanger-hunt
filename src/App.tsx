@@ -66,6 +66,7 @@ export default function App() {
   const [hasCompleted, setHasCompleted] = useState(false);
   const [hasSaved, setHasSaved] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
 
   const playSound = (soundUrl: string) => {
     const audio = new Audio(soundUrl);
@@ -656,6 +657,129 @@ export default function App() {
         )}
       </AnimatePresence>
 
+      {/* Privacy Policy Modal */}
+      <AnimatePresence>
+        {isPrivacyModalOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-[#0a051a]/95 backdrop-blur-md"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className="bg-[#1a0a3e] border border-white/10 w-full max-w-2xl max-h-[80vh] rounded-3xl overflow-hidden shadow-2xl relative flex flex-col"
+            >
+              <div className="p-6 border-b border-white/10 flex items-center justify-between bg-white/5">
+                <h3 className="text-xl font-bold text-white">Privacy Policy</h3>
+                <button 
+                  onClick={() => setIsPrivacyModalOpen(false)}
+                  className="text-purple-300 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-full"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+              
+              <div className="p-8 overflow-y-auto custom-scrollbar text-purple-100/90 space-y-6">
+                <div>
+                  <h4 className="text-white font-bold text-lg mb-2">Privacy Policy for Verse Scavenger Hunt</h4>
+                  <p className="text-sm text-purple-300">Effective Date: 10 Apr 2026</p>
+                </div>
+
+                <p className="text-sm leading-relaxed">
+                  Welcome to the Verse Scavenger Hunt. Your privacy is important to us. This Privacy Policy explains how we collect, use, and protect your information when you participate in our scavenger hunt activities.
+                </p>
+
+                <section>
+                  <h5 className="text-white font-bold mb-2">1. Information We Collect</h5>
+                  <ul className="list-disc pl-5 space-y-1 text-sm">
+                    <li><strong>Personal Information:</strong> Username, email address, or social media handle (if required for participation)</li>
+                    <li><strong>Activity Data:</strong> Participation actions such as submissions, completed tasks, and engagement metrics</li>
+                    <li><strong>Technical Data:</strong> IP address, device type, browser information (for security and analytics purposes)</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h5 className="text-white font-bold mb-2">2. How We Use Your Information</h5>
+                  <ul className="list-disc pl-5 space-y-1 text-sm">
+                    <li>Manage and operate the scavenger hunt</li>
+                    <li>Track participation and determine winners</li>
+                    <li>Communicate updates, announcements, or rewards</li>
+                    <li>Improve user experience and event performance</li>
+                    <li>Prevent fraud and ensure fair participation</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h5 className="text-white font-bold mb-2">3. Sharing of Information</h5>
+                  <p className="text-sm">We do not sell or rent your personal information. However, we may share information:</p>
+                  <ul className="list-disc pl-5 space-y-1 text-sm mt-2">
+                    <li>With trusted partners for event operations (if necessary)</li>
+                    <li>To comply with legal obligations</li>
+                    <li>To protect against fraudulent or abusive activity</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h5 className="text-white font-bold mb-2">4. Data Security</h5>
+                  <p className="text-sm">We take reasonable measures to protect your information from unauthorized access, misuse, or disclosure. However, no system is 100% secure.</p>
+                </section>
+
+                <section>
+                  <h5 className="text-white font-bold mb-2">5. Cookies & Tracking</h5>
+                  <p className="text-sm">We may use cookies or similar technologies to enhance your experience, analyze traffic, and improve functionality.</p>
+                </section>
+
+                <section>
+                  <h5 className="text-white font-bold mb-2">6. Your Rights</h5>
+                  <p className="text-sm">You have the right to:</p>
+                  <ul className="list-disc pl-5 space-y-1 text-sm mt-2">
+                    <li>Request access to your data</li>
+                    <li>Request correction or deletion of your data</li>
+                    <li>Withdraw consent at any time</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h5 className="text-white font-bold mb-2">7. Third-Party Links</h5>
+                  <p className="text-sm">The scavenger hunt may include links to third-party platforms (e.g., social media). We are not responsible for their privacy practices.</p>
+                </section>
+
+                <section>
+                  <h5 className="text-white font-bold mb-2">8. Children’s Privacy</h5>
+                  <p className="text-sm">This event is not intended for children under 13. We do not knowingly collect data from children.</p>
+                </section>
+
+                <section>
+                  <h5 className="text-white font-bold mb-2">9. Changes to This Policy</h5>
+                  <p className="text-sm">We may update this Privacy Policy from time to time. Changes will be posted on this page with an updated effective date.</p>
+                </section>
+
+                <section>
+                  <h5 className="text-white font-bold mb-2">10. Contact Us</h5>
+                  <p className="text-sm">If you have any questions or concerns about this Privacy Policy, please contact us at:</p>
+                  <p className="text-purple-400 font-bold mt-1">Email: joel@bitcoin.com</p>
+                </section>
+
+                <p className="text-xs text-purple-400/60 pt-4 italic">
+                  By participating in the Verse Scavenger Hunt, you agree to this Privacy Policy.
+                </p>
+              </div>
+
+              <div className="p-6 border-t border-white/10 bg-white/5 flex justify-end">
+                <button 
+                  onClick={() => setIsPrivacyModalOpen(false)}
+                  className="bg-purple-600 hover:bg-purple-500 text-white px-8 py-2.5 rounded-xl font-bold transition-colors shadow-lg"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Footer */}
       <footer className="relative z-10 bg-[#1a0a3e]/80 backdrop-blur-md border-t border-white/10 py-12 px-5">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
@@ -670,9 +794,14 @@ export default function App() {
           </div>
 
           <div className="flex flex-wrap justify-center gap-x-8 gap-y-4">
-            <a href="#" className="text-purple-300/70 hover:text-white text-sm font-medium transition-colors">Privacy Policy</a>
+            <button 
+              onClick={() => setIsPrivacyModalOpen(true)}
+              className="text-purple-300/70 hover:text-white text-sm font-medium transition-colors"
+            >
+              Privacy Policy
+            </button>
             <a href="#" className="text-purple-300/70 hover:text-white text-sm font-medium transition-colors">Terms of Service</a>
-            <a href="#" className="text-purple-300/70 hover:text-white text-sm font-medium transition-colors">Contact Us</a>
+            <a href="mailto:joel@bitcoin.com" className="text-purple-300/70 hover:text-white text-sm font-medium transition-colors">Contact Us</a>
             <a href="#" className="text-purple-300/70 hover:text-white text-sm font-medium transition-colors">Documentation</a>
             <a href="#" className="text-purple-300/70 hover:text-white text-sm font-medium transition-colors">Community</a>
           </div>
