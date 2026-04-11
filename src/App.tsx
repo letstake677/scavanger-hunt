@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Menu, X, Trophy, MapPin, Search, Gift, Lightbulb, CheckCircle2, ArrowRight, Sparkles, User } from 'lucide-react';
+import { Menu, X, Trophy, MapPin, Search, Gift, Lightbulb, CheckCircle2, ArrowRight, Sparkles, User, Mail, MessageCircle, Twitter, Send, ExternalLink, ShieldAlert, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAccount, useDisconnect, useBalance } from 'wagmi'
 import { modal } from './config/reown'
@@ -67,6 +67,7 @@ export default function App() {
   const [hasSaved, setHasSaved] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
   const playSound = (soundUrl: string) => {
     const audio = new Audio(soundUrl);
@@ -801,7 +802,12 @@ export default function App() {
               Privacy Policy
             </button>
             <a href="#" className="text-purple-300/70 hover:text-white text-sm font-medium transition-colors">Terms of Service</a>
-            <a href="mailto:joel@bitcoin.com" className="text-purple-300/70 hover:text-white text-sm font-medium transition-colors">Contact Us</a>
+            <button 
+              onClick={() => setIsContactModalOpen(true)}
+              className="text-purple-300/70 hover:text-white text-sm font-medium transition-colors"
+            >
+              Contact Us
+            </button>
             <a href="#" className="text-purple-300/70 hover:text-white text-sm font-medium transition-colors">Documentation</a>
             <a href="#" className="text-purple-300/70 hover:text-white text-sm font-medium transition-colors">Community</a>
           </div>
@@ -811,6 +817,142 @@ export default function App() {
           </p>
         </div>
       </footer>
+
+      {/* Contact Us Modal */}
+      <AnimatePresence>
+        {isContactModalOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-[#0a051a]/95 backdrop-blur-md"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className="bg-[#1a0a3e] border border-white/10 w-full max-w-2xl max-h-[85vh] rounded-3xl overflow-hidden shadow-2xl relative flex flex-col"
+            >
+              <div className="p-6 border-b border-white/10 flex items-center justify-between bg-white/5">
+                <h3 className="text-xl font-bold text-white">Contact Us</h3>
+                <button 
+                  onClick={() => setIsContactModalOpen(false)}
+                  className="text-purple-300 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-full"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+              
+              <div className="p-8 overflow-y-auto custom-scrollbar text-purple-100/90 space-y-8">
+                <div className="text-center">
+                  <h4 className="text-2xl font-black text-white mb-3">Get in Touch</h4>
+                  <p className="text-purple-300 leading-relaxed">
+                    We'd love to hear from you! Whether you have questions, feedback, or need support regarding the Verse Scavenger Hunt, feel free to reach out.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* General Inquiries */}
+                  <div className="bg-white/5 border border-white/10 p-6 rounded-2xl hover:bg-white/10 transition-colors">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center text-blue-400">
+                        <Mail size={20} />
+                      </div>
+                      <h5 className="text-white font-bold">General Inquiries</h5>
+                    </div>
+                    <p className="text-xs text-purple-300 mb-3">For event rules or participation questions.</p>
+                    <a href="mailto:joel@bitcoin.com" className="text-purple-400 font-bold hover:underline text-sm">joel@bitcoin.com</a>
+                  </div>
+
+                  {/* Support */}
+                  <div className="bg-white/5 border border-white/10 p-6 rounded-2xl hover:bg-white/10 transition-colors">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 bg-orange-500/20 rounded-xl flex items-center justify-center text-orange-400">
+                        <Gift size={20} />
+                      </div>
+                      <h5 className="text-white font-bold">Support</h5>
+                    </div>
+                    <p className="text-xs text-purple-300 mb-3">Facing technical issues or submission errors?</p>
+                    <a href="mailto:joel@bitcoin.com" className="text-purple-400 font-bold hover:underline text-sm">joel@bitcoin.com</a>
+                  </div>
+
+                  {/* Partnerships */}
+                  <div className="bg-white/5 border border-white/10 p-6 rounded-2xl hover:bg-white/10 transition-colors">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center text-green-400">
+                        <Sparkles size={20} />
+                      </div>
+                      <h5 className="text-white font-bold">Partnerships</h5>
+                    </div>
+                    <p className="text-xs text-purple-300 mb-3">Interested in collaborating with Verse?</p>
+                    <a href="mailto:joel@bitcoin.com" className="text-purple-400 font-bold hover:underline text-sm">joel@bitcoin.com</a>
+                  </div>
+
+                  {/* Response Time */}
+                  <div className="bg-white/5 border border-white/10 p-6 rounded-2xl">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center text-purple-400">
+                        <Clock size={20} />
+                      </div>
+                      <h5 className="text-white font-bold">Response Time</h5>
+                    </div>
+                    <p className="text-xs text-purple-300 leading-relaxed">
+                      We usually respond within 24–48 hours. During high activity, it may take longer.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Social Media Section */}
+                <div className="bg-gradient-to-br from-purple-500/10 to-indigo-500/10 border border-purple-500/20 p-8 rounded-3xl text-center">
+                  <h5 className="text-white font-bold mb-6 flex items-center justify-center gap-2">
+                    <MessageCircle size={20} className="text-purple-400" />
+                    Connect on Social Media
+                  </h5>
+                  <div className="flex flex-wrap justify-center gap-4">
+                    <a 
+                      href="https://x.com/VerseEcosystem" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 bg-black/40 hover:bg-black/60 text-white px-6 py-3 rounded-2xl border border-white/10 transition-all hover:scale-105"
+                    >
+                      <Twitter size={20} />
+                      <span className="font-bold">Twitter / X</span>
+                    </a>
+                    <a 
+                      href="https://t.me/GetVerse" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 bg-[#229ED9]/20 hover:bg-[#229ED9]/30 text-white px-6 py-3 rounded-2xl border border-[#229ED9]/30 transition-all hover:scale-105"
+                    >
+                      <Send size={20} />
+                      <span className="font-bold">Telegram</span>
+                    </a>
+                  </div>
+                </div>
+
+                <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-2xl flex items-start gap-3">
+                  <ShieldAlert size={20} className="text-red-400 shrink-0 mt-0.5" />
+                  <p className="text-xs text-red-200/80 leading-relaxed">
+                    <strong>Important Note:</strong> Please avoid sharing sensitive personal information (passwords, private keys, etc.) when contacting us.
+                  </p>
+                </div>
+
+                <p className="text-center text-purple-400 font-bold text-lg pt-4">
+                  Thank you for being part of the Verse Scavenger Hunt 🚀
+                </p>
+              </div>
+
+              <div className="p-6 border-t border-white/10 bg-white/5 flex justify-end">
+                <button 
+                  onClick={() => setIsContactModalOpen(false)}
+                  className="bg-purple-600 hover:bg-purple-500 text-white px-8 py-2.5 rounded-xl font-bold transition-colors shadow-lg"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
