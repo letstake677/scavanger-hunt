@@ -70,6 +70,7 @@ export default function App() {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
   const [isDocsModalOpen, setIsDocsModalOpen] = useState(false);
+  const [isCommunityModalOpen, setIsCommunityModalOpen] = useState(false);
 
   const playSound = (soundUrl: string) => {
     const audio = new Audio(soundUrl);
@@ -1071,6 +1072,153 @@ export default function App() {
         )}
       </AnimatePresence>
 
+      {/* Community Modal */}
+      <AnimatePresence>
+        {isCommunityModalOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-[#0a051a]/95 backdrop-blur-md"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className="bg-[#1a0a3e] border border-white/10 w-full max-w-3xl max-h-[85vh] rounded-3xl overflow-hidden shadow-2xl relative flex flex-col"
+            >
+              <div className="p-6 border-b border-white/10 flex items-center justify-between bg-white/5">
+                <h3 className="text-xl font-bold text-white">Community</h3>
+                <button 
+                  onClick={() => setIsCommunityModalOpen(false)}
+                  className="text-purple-300 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-full"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+              
+              <div className="p-8 overflow-y-auto custom-scrollbar text-purple-100/90 space-y-8">
+                <div className="text-center">
+                  <h4 className="text-2xl font-black text-white mb-3">Verse Scavenger Hunt – Community</h4>
+                  <p className="text-purple-300 leading-relaxed">
+                    Welcome to the heart of the Verse Scavenger Hunt — our community 🚀
+                  </p>
+                  <p className="text-sm mt-4 text-purple-200/80">
+                    This is where creators, explorers, and innovators come together to share ideas, grow together, and make an impact across the Verse ecosystem.
+                  </p>
+                </div>
+
+                <section className="space-y-4">
+                  <div className="flex items-center gap-3 text-white font-bold text-lg">
+                    <Sparkles className="text-purple-400" size={20} />
+                    <h5>🌍 Our Mission</h5>
+                  </div>
+                  <ul className="list-disc pl-12 space-y-2 text-sm">
+                    <li>Encourage creativity and originality</li>
+                    <li>Promote collaboration across platforms</li>
+                    <li>Grow the global Verse ecosystem</li>
+                    <li>Reward active and valuable contributors</li>
+                  </ul>
+                </section>
+
+                <section className="bg-gradient-to-br from-purple-500/10 to-indigo-500/10 border border-purple-500/20 p-8 rounded-3xl text-center">
+                  <h5 className="text-white font-bold mb-6 flex items-center justify-center gap-2">
+                    <User className="text-purple-400" size={20} />
+                    🤝 Join the Community
+                  </h5>
+                  <p className="text-sm mb-6 text-purple-200">Become part of our growing network by connecting on different platforms:</p>
+                  <div className="flex flex-wrap justify-center gap-4">
+                    <a 
+                      href="https://t.me/GetVerse" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 bg-[#229ED9]/20 hover:bg-[#229ED9]/30 text-white px-6 py-3 rounded-2xl border border-[#229ED9]/30 transition-all hover:scale-105"
+                    >
+                      <Send size={20} />
+                      <span className="font-bold">Telegram</span>
+                    </a>
+                    <a 
+                      href="https://x.com/VerseEcosystem" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 bg-black/40 hover:bg-black/60 text-white px-6 py-3 rounded-2xl border border-white/10 transition-all hover:scale-105"
+                    >
+                      <Twitter size={20} />
+                      <span className="font-bold">Twitter / X</span>
+                    </a>
+                  </div>
+                  <p className="text-xs mt-6 text-purple-400 font-medium italic">Stay active, engage with others, and be part of something bigger.</p>
+                </section>
+
+                <section className="space-y-4">
+                  <div className="flex items-center gap-3 text-white font-bold text-lg">
+                    <Lightbulb className="text-purple-400" size={20} />
+                    <h5>💡 What You Can Do</h5>
+                  </div>
+                  <ul className="list-disc pl-12 space-y-2 text-sm">
+                    <li>Share content (memes, posts, videos)</li>
+                    <li>Support others by liking, commenting, and sharing</li>
+                    <li>Participate in weekly and monthly events</li>
+                    <li>Help new members get started</li>
+                  </ul>
+                </section>
+
+                <section className="space-y-4">
+                  <div className="flex items-center gap-3 text-white font-bold text-lg">
+                    <Trophy className="text-purple-400" size={20} />
+                    <h5>🏆 Community Rewards</h5>
+                  </div>
+                  <p className="text-sm pl-8 mb-2">We value active members! You can earn:</p>
+                  <ul className="list-disc pl-12 space-y-2 text-sm">
+                    <li>Recognition within the community</li>
+                    <li>Weekly or monthly rewards</li>
+                    <li>Special bonuses for high-quality contributions</li>
+                  </ul>
+                </section>
+
+                <section className="space-y-4">
+                  <div className="flex items-center gap-3 text-white font-bold text-lg">
+                    <ShieldAlert className="text-purple-400" size={20} />
+                    <h5>📢 Community Guidelines</h5>
+                  </div>
+                  <p className="text-sm pl-8 mb-2">To keep the environment positive and productive:</p>
+                  <ul className="list-disc pl-12 space-y-2 text-sm">
+                    <li>Be respectful and supportive</li>
+                    <li>Avoid spam or self-promotion without value</li>
+                    <li>Do not use fake engagement or bots</li>
+                    <li>Follow all platform rules</li>
+                  </ul>
+                </section>
+
+                <section className="bg-white/5 p-8 rounded-3xl text-center border border-white/5">
+                  <h5 className="text-white font-bold mb-3 text-xl">🌟 Why Join?</h5>
+                  <p className="text-purple-200 leading-relaxed italic">
+                    "Because this is more than just a scavenger hunt... It’s a movement where your creativity can reach the world 🌍"
+                  </p>
+                </section>
+
+                <section className="text-center pt-6">
+                  <p className="text-white font-bold mb-2">📩 Stay Connected</p>
+                  <a href="mailto:joel@bitcoin.com" className="text-purple-400 font-bold hover:underline">joel@bitcoin.com</a>
+                </section>
+
+                <p className="text-center text-purple-400 font-bold text-xl pt-4">
+                  Let’s build, grow, and win together in the Verse ecosystems 🚀
+                </p>
+              </div>
+
+              <div className="p-6 border-t border-white/10 bg-white/5 flex justify-end">
+                <button 
+                  onClick={() => setIsCommunityModalOpen(false)}
+                  className="bg-purple-600 hover:bg-purple-500 text-white px-8 py-2.5 rounded-xl font-bold transition-colors shadow-lg"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Footer */}
       <footer className="relative z-10 bg-[#1a0a3e]/80 backdrop-blur-md border-t border-white/10 py-12 px-5">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
@@ -1109,7 +1257,12 @@ export default function App() {
             >
               Documentation
             </button>
-            <a href="#" className="text-purple-300/70 hover:text-white text-sm font-medium transition-colors">Community</a>
+            <button 
+              onClick={() => setIsCommunityModalOpen(true)}
+              className="text-purple-300/70 hover:text-white text-sm font-medium transition-colors"
+            >
+              Community
+            </button>
           </div>
 
           <p className="text-purple-300/40 text-xs font-medium">
