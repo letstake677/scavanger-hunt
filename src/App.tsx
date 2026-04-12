@@ -3,12 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from 'react';
-import { Menu, X, Trophy, MapPin, Search, Gift, Lightbulb, CheckCircle2, ArrowRight, Sparkles, User, Mail, MessageCircle, Twitter, Send, ExternalLink, ShieldAlert, Clock, Edit2, Wallet, Medal, Crown } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Menu, X, Trophy, MapPin, Search, Gift, Lightbulb, CheckCircle2, ArrowRight, Sparkles, User, Mail, MessageCircle, Twitter, Send, ExternalLink, ShieldAlert, Clock, Edit2, Wallet, Medal, Crown, Volume2, VolumeX, Zap, Award, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAccount, useDisconnect, useBalance } from 'wagmi'
 import { modal } from './config/reown'
 import { formatEther } from 'viem'
+import confetti from 'canvas-confetti';
 
 const HUNT_QUESTIONS = [
   {
@@ -77,12 +78,40 @@ export default function App() {
   const [newProfilePic, setNewProfilePic] = useState('');
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [userScore, setUserScore] = useState(0);
+  const [isMuted, setIsMuted] = useState(false);
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   const playSound = (soundUrl: string) => {
+    if (isMuted) return;
     const audio = new Audio(soundUrl);
     audio.volume = 0.4;
     audio.play().catch(e => console.log('Audio play blocked by browser:', e));
   };
+
+  // Countdown Timer Logic
+  useEffect(() => {
+    const targetDate = new Date('2026-04-13T00:00:00Z').getTime();
+
+    const interval = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+
+      if (distance < 0) {
+        clearInterval(interval);
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        return;
+      }
+
+      setTimeLeft({
+        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((distance % (1000 * 60)) / 1000)
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     if (statusMessage) {
@@ -245,6 +274,14 @@ export default function App() {
           setIsCorrect(null);
         } else {
           setIsFinished(true);
+          if (correctCount + 1 === HUNT_QUESTIONS.length) {
+            confetti({
+              particleCount: 150,
+              spread: 70,
+              origin: { y: 0.6 },
+              colors: ['#a855f7', '#ec4899', '#f97316']
+            });
+          }
         }
       }, 1000);
     } else {
@@ -316,6 +353,14 @@ export default function App() {
               {link.name}
             </a>
           ))}
+
+          <button 
+            onClick={() => setIsMuted(!isMuted)}
+            className="p-2 text-purple-300 hover:text-white transition-colors bg-white/5 rounded-lg border border-white/10"
+            title={isMuted ? "Unmute" : "Mute"}
+          >
+            {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+          </button>
           
             {isConnected ? (
               <div className="flex items-center gap-3">
@@ -519,6 +564,23 @@ export default function App() {
             <span className="text-white text-xs font-bold tracking-wider uppercase">Live: Season 1 Now Active</span>
           </motion.div>
 
+          {/* Countdown Timer */}
+          <div className="flex justify-center gap-4 mb-10">
+            {[
+              { label: 'Days', value: timeLeft.days },
+              { label: 'Hours', value: timeLeft.hours },
+              { label: 'Mins', value: timeLeft.minutes },
+              { label: 'Secs', value: timeLeft.seconds },
+            ].map((item) => (
+              <div key={item.label} className="flex flex-col items-center">
+                <div className="w-16 h-16 md:w-20 md:h-20 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl flex items-center justify-center shadow-2xl">
+                  <span className="text-2xl md:text-3xl font-black text-white">{item.value.toString().padStart(2, '0')}</span>
+                </div>
+                <span className="text-[10px] md:text-xs font-bold text-purple-300 uppercase tracking-widest mt-2">{item.label}</span>
+              </div>
+            ))}
+          </div>
+
           <h1 className="text-6xl md:text-8xl font-black text-white leading-[0.9] mb-6 drop-shadow-2xl">
             Join the <span className="bg-gradient-to-r from-pink-500 via-orange-400 to-yellow-400 bg-clip-text text-transparent">Ultimate</span><br />
             <span className="text-transparent bg-clip-text bg-gradient-to-b from-white to-white/60">Scavenger Hunt!</span>
@@ -551,6 +613,23 @@ export default function App() {
               <Search size={20} />
               How it works
             </a>
+          </div>
+
+          {/* Live Activity Ticker */}
+          <div className="max-w-md mx-auto mb-12 bg-white/5 backdrop-blur-md border border-white/10 rounded-full py-2 px-4 overflow-hidden relative">
+            <div className="flex items-center gap-2 whitespace-nowrap animate-marquee">
+              <Zap size={14} className="text-yellow-400 shrink-0" />
+              <span className="text-xs font-bold text-purple-200 uppercase tracking-wider">Recent Activity:</span>
+              {leaderboard.length > 0 ? (
+                leaderboard.slice(0, 5).map((player, i) => (
+                  <span key={i} className="text-xs text-white font-medium ml-4">
+                    {player.username} just earned {player.score} points! •
+                  </span>
+                ))
+              ) : (
+                <span className="text-xs text-white font-medium ml-4">Hunters are joining the Verse...</span>
+              )}
+            </div>
           </div>
 
           {/* Progress Bar in Hero */}
@@ -1109,6 +1188,47 @@ export default function App() {
                     </div>
                   </div>
                 )}
+
+                {/* Badges Section */}
+                <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                  <h4 className="text-xs font-bold text-purple-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                    <Award size={14} /> Your Badges
+                  </h4>
+                  <div className="flex flex-wrap gap-3">
+                    {userScore >= 0 && (
+                      <div className="flex flex-col items-center gap-1 group">
+                        <div className="w-10 h-10 rounded-full bg-slate-700/50 flex items-center justify-center border border-slate-600 group-hover:border-slate-400 transition-colors">
+                          <Medal size={20} className="text-slate-400" />
+                        </div>
+                        <span className="text-[10px] text-slate-400 font-bold">Novice</span>
+                      </div>
+                    )}
+                    {userScore >= 250 && (
+                      <div className="flex flex-col items-center gap-1 group">
+                        <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center border border-blue-500/50 group-hover:border-blue-400 transition-colors">
+                          <Star size={20} className="text-blue-400" />
+                        </div>
+                        <span className="text-[10px] text-blue-400 font-bold">Tracker</span>
+                      </div>
+                    )}
+                    {userScore >= 500 && (
+                      <div className="flex flex-col items-center gap-1 group">
+                        <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center border border-purple-500/50 group-hover:border-purple-400 transition-colors">
+                          <Zap size={20} className="text-purple-400" />
+                        </div>
+                        <span className="text-[10px] text-purple-400 font-bold">Elite</span>
+                      </div>
+                    )}
+                    {userScore >= 1000 && (
+                      <div className="flex flex-col items-center gap-1 group">
+                        <div className="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center border border-yellow-500/50 group-hover:border-yellow-400 transition-colors">
+                          <Crown size={20} className="text-yellow-400" />
+                        </div>
+                        <span className="text-[10px] text-yellow-400 font-bold">Master</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
 
                 <button
                   onClick={updateProfile}
