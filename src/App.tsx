@@ -323,12 +323,15 @@ export default function App() {
     const username = user?.username || 'Hunter';
     const gender = user?.avatarGender || 'male';
     
-    // Correcting the mapping: male gets short hair, female gets long hair
+    // Using valid Dicebear Avataaars topType identifiers
     const topType = gender === 'male' 
-      ? 'shortHair,frizzle,shaggy,shaggyMullet,noHair,hat,turban'
-      : 'longHair,bob,curly,curvy,dreads,frida,fro,froBand';
+      ? 'noHair,shortHairTheCaesar,shortHairTheCaesarSidePart,shortHairShortFlat,shortHairShortRound,shortHairSides,shortHairDreads01,shortHairDreads02,shortHairFrizzle,shortHairShaggyMullet'
+      : 'longHairBigHair,longHairBob,longHairBun,longHairCurly,longHairCurvy,longHairDreads,longHairFrida,longHairFro,longHairFroBand,longHairNotTooLong,longHairShavedSides,longHairMiaWallace,longHairStraight,longHairStraight2,longHairStraightStrand';
     
-    return `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}&topType=${topType}`;
+    const facialHair = gender === 'male' ? 'beardLight,beardMajestic,beardMedium,moustaches,moustachesFancy' : '';
+    const facialHairProb = gender === 'male' ? 40 : 0;
+    
+    return `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}&topType=${topType}&facialHair=${facialHair}&facialHairProbability=${facialHairProb}`;
   };
 
   const navLinks = [
