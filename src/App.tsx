@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Menu, X, Trophy, MapPin, Search, Gift, Lightbulb, CheckCircle2, ArrowRight, Sparkles, User, Mail, MessageCircle, Twitter, Send, ExternalLink, ShieldAlert, Clock, Edit2, Wallet } from 'lucide-react';
+import { Menu, X, Trophy, MapPin, Search, Gift, Lightbulb, CheckCircle2, ArrowRight, Sparkles, User, Mail, MessageCircle, Twitter, Send, ExternalLink, ShieldAlert, Clock, Edit2, Wallet, Medal, Crown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAccount, useDisconnect, useBalance } from 'wagmi'
 import { modal } from './config/reown'
@@ -726,45 +726,159 @@ export default function App() {
       </section>
 
       {/* Leaderboard Section */}
-      <section id="leaderboard" className="relative z-10 px-5 py-12 text-center">
-        <div className="max-w-4xl mx-auto bg-[#1a0a3e]/90 backdrop-blur-xl rounded-3xl border border-white/20 p-8 md:p-12 shadow-[0_20px_60px_rgba(0,0,0,0.6)]">
-          <div className="flex items-center justify-center gap-3 mb-8">
-            <Trophy className="text-yellow-400 w-8 h-8" />
-            <h2 className="text-3xl md:text-4xl font-extrabold text-white">Top <span className="text-purple-400">Hunters</span></h2>
-          </div>
+      <section id="leaderboard" className="relative z-10 px-5 py-24 text-center">
+        <div className="max-w-5xl mx-auto">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="flex flex-col items-center mb-16"
+          >
+            <div className="inline-flex items-center gap-2 bg-yellow-400/10 border border-yellow-400/20 px-4 py-1.5 rounded-full mb-4">
+              <Trophy className="text-yellow-400 w-4 h-4" />
+              <span className="text-yellow-400 text-xs font-black tracking-widest uppercase">Global Standings</span>
+            </div>
+            <h2 className="text-4xl md:text-6xl font-black text-white mb-4 tracking-tight">
+              Top <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">Hunters</span>
+            </h2>
+            <p className="text-purple-300 max-w-xl text-lg font-medium">
+              The elite explorers of the Verse ecosystem. Will you be the next to claim the crown?
+            </p>
+          </motion.div>
           
-          <div className="space-y-4">
-            {leaderboard.length > 0 ? (
-              leaderboard.map((user, index) => (
-                <div key={user.address} className="flex items-center justify-between p-4 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/20 transition-colors group">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${
-                      index === 0 ? 'from-yellow-400 to-orange-500' : 
-                      index === 1 ? 'from-slate-300 to-slate-400' : 
-                      index === 2 ? 'from-amber-600 to-amber-700' : 'from-purple-500 to-indigo-500'
-                    } flex items-center justify-center text-white font-bold shadow-lg overflow-hidden`}>
-                      {user.profilePic ? (
-                        <img src={user.profilePic} alt="" className="w-full h-full object-cover" />
-                      ) : (
-                        index + 1
-                      )}
-                    </div>
-                    <span className="text-white font-bold text-lg">{user.username}</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-purple-400 font-black text-xl">{user.score.toLocaleString()}</span>
-                    <span className="text-purple-200/50 text-xs block uppercase tracking-wider font-bold">Points</span>
-                  </div>
+          {/* Podium for Top 3 */}
+          {leaderboard.length >= 3 && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 items-end">
+              {/* 2nd Place */}
+              <motion.div 
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 }}
+                className="order-2 md:order-1 bg-[#1a0a3e]/80 backdrop-blur-xl border border-slate-400/30 p-8 rounded-[2rem] shadow-2xl relative group hover:-translate-y-2 transition-all duration-500"
+              >
+                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-slate-400 rounded-2xl flex items-center justify-center shadow-lg shadow-slate-900/50 rotate-12 group-hover:rotate-0 transition-transform">
+                  <Medal className="text-slate-900 w-6 h-6" />
                 </div>
-              ))
-            ) : (
-              <div className="py-10 text-purple-300 italic">No hunters yet. Be the first!</div>
-            )}
+                <div className="w-24 h-24 mx-auto mb-6 rounded-3xl overflow-hidden border-4 border-slate-400/20 shadow-inner">
+                  {leaderboard[1].profilePic ? (
+                    <img src={leaderboard[1].profilePic} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-slate-400/10 flex items-center justify-center text-slate-400 text-3xl font-black">2</div>
+                  )}
+                </div>
+                <h3 className="text-xl font-black text-white mb-1 truncate">{leaderboard[1].username}</h3>
+                <div className="text-slate-400 font-mono text-2xl font-black">{leaderboard[1].score.toLocaleString()}</div>
+                <div className="text-[10px] text-slate-500 uppercase font-black tracking-widest mt-1">Points</div>
+              </motion.div>
+
+              {/* 1st Place */}
+              <motion.div 
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="order-1 md:order-2 bg-gradient-to-b from-yellow-400/20 to-[#1a0a3e]/90 backdrop-blur-xl border-2 border-yellow-400/50 p-10 rounded-[2.5rem] shadow-[0_0_50px_rgba(250,204,21,0.2)] relative group hover:-translate-y-4 transition-all duration-500 z-10"
+              >
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-16 h-16 bg-yellow-400 rounded-3xl flex items-center justify-center shadow-xl shadow-yellow-900/50 -rotate-12 group-hover:rotate-0 transition-transform">
+                  <Crown className="text-yellow-900 w-8 h-8" />
+                </div>
+                <div className="w-32 h-32 mx-auto mb-6 rounded-[2rem] overflow-hidden border-4 border-yellow-400/40 shadow-2xl">
+                  {leaderboard[0].profilePic ? (
+                    <img src={leaderboard[0].profilePic} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-yellow-400/10 flex items-center justify-center text-yellow-400 text-4xl font-black">1</div>
+                  )}
+                </div>
+                <h3 className="text-2xl font-black text-white mb-1 truncate">{leaderboard[0].username}</h3>
+                <div className="text-yellow-400 font-mono text-4xl font-black">{leaderboard[0].score.toLocaleString()}</div>
+                <div className="text-xs text-yellow-500/60 uppercase font-black tracking-[0.2em] mt-2">Supreme Hunter</div>
+              </motion.div>
+
+              {/* 3rd Place */}
+              <motion.div 
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 }}
+                className="order-3 bg-[#1a0a3e]/80 backdrop-blur-xl border border-amber-700/30 p-8 rounded-[2rem] shadow-2xl relative group hover:-translate-y-2 transition-all duration-500"
+              >
+                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-amber-700 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-900/50 -rotate-6 group-hover:rotate-0 transition-transform">
+                  <Medal className="text-amber-100 w-6 h-6" />
+                </div>
+                <div className="w-24 h-24 mx-auto mb-6 rounded-3xl overflow-hidden border-4 border-amber-700/20 shadow-inner">
+                  {leaderboard[2].profilePic ? (
+                    <img src={leaderboard[2].profilePic} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-amber-700/10 flex items-center justify-center text-amber-700 text-3xl font-black">3</div>
+                  )}
+                </div>
+                <h3 className="text-xl font-black text-white mb-1 truncate">{leaderboard[2].username}</h3>
+                <div className="text-amber-600 font-mono text-2xl font-black">{leaderboard[2].score.toLocaleString()}</div>
+                <div className="text-[10px] text-amber-700 uppercase font-black tracking-widest mt-1">Points</div>
+              </motion.div>
+            </div>
+          )}
+
+          {/* Rest of the Leaderboard */}
+          <div className="bg-[#1a0a3e]/90 backdrop-blur-2xl rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl">
+            <div className="grid grid-cols-[60px_1fr_120px] px-8 py-4 border-b border-white/5 bg-white/5 text-[10px] font-black text-purple-400 uppercase tracking-[0.2em]">
+              <span>Rank</span>
+              <span className="text-left">Hunter</span>
+              <span className="text-right">Score</span>
+            </div>
+            
+            <div className="divide-y divide-white/5">
+              {leaderboard.length > 0 ? (
+                leaderboard.slice(leaderboard.length >= 3 ? 3 : 0).map((user, index) => {
+                  const actualRank = (leaderboard.length >= 3 ? 3 : 0) + index + 1;
+                  return (
+                    <motion.div 
+                      key={user.address} 
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: index * 0.05 }}
+                      className="grid grid-cols-[60px_1fr_120px] items-center px-8 py-5 hover:bg-white/5 transition-colors group cursor-default"
+                    >
+                      <div className="font-mono text-lg font-black text-purple-500/50 group-hover:text-purple-400 transition-colors">
+                        #{actualRank.toString().padStart(2, '0')}
+                      </div>
+                      <div className="flex items-center gap-4 text-left">
+                        <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 overflow-hidden shrink-0">
+                          {user.profilePic ? (
+                            <img src={user.profilePic} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-purple-400 font-bold">
+                              {user.username.charAt(0)}
+                            </div>
+                          )}
+                        </div>
+                        <span className="text-white font-bold text-lg group-hover:translate-x-1 transition-transform">{user.username}</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-white font-mono text-xl font-black">{user.score.toLocaleString()}</div>
+                        <div className="text-[8px] text-purple-500 uppercase font-black tracking-widest">Points</div>
+                      </div>
+                    </motion.div>
+                  );
+                })
+              ) : (
+                <div className="py-20 text-purple-300 italic flex flex-col items-center gap-4">
+                  <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center">
+                    <Search className="text-purple-500/40" />
+                  </div>
+                  No hunters found in the wild yet.
+                </div>
+              )}
+            </div>
+            
+            <div className="p-8 bg-white/5 border-t border-white/5">
+              <button className="group flex items-center gap-2 mx-auto text-purple-300 hover:text-white font-black text-sm uppercase tracking-widest transition-all">
+                View Full Leaderboard
+                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
           </div>
-          
-          <button className="mt-10 text-purple-300 hover:text-white font-bold transition-colors underline underline-offset-8">
-            View Full Leaderboard
-          </button>
         </div>
       </section>
 
