@@ -60,6 +60,7 @@ export default function App() {
   const [showHint, setShowHint] = useState(false);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [isFinished, setIsFinished] = useState(false);
+  const [isMissionFailed, setIsMissionFailed] = useState(false);
   const [correctCount, setCorrectCount] = useState(0);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [username, setUsername] = useState('');
@@ -133,7 +134,7 @@ export default function App() {
   };
 
   const updateScore = async () => {
-    if (!address || hasSaved) return;
+    if (!address || hasSaved || isMissionFailed) return;
     try {
       const normalizedAddress = address.toLowerCase();
       console.log('Sending score update for:', normalizedAddress);
@@ -212,6 +213,7 @@ export default function App() {
     setSelectedOption(null);
     setShowHint(false);
     setIsFinished(false);
+    setIsMissionFailed(false);
     setIsMenuOpen(false);
     setHasSaved(false);
     setIsCorrect(null);
@@ -227,21 +229,26 @@ export default function App() {
     if (correct) {
       setCorrectCount(prev => prev + 1);
       playSound(SOUNDS.correct);
+      
+      // Move to next question after a short delay
+      setTimeout(() => {
+        if (currentStep < HUNT_QUESTIONS.length - 1) {
+          setCurrentStep(prev => prev + 1);
+          setSelectedOption(null);
+          setShowHint(false);
+          setIsCorrect(null);
+        } else {
+          setIsFinished(true);
+        }
+      }, 1000);
     } else {
       playSound(SOUNDS.incorrect);
-    }
-    
-    // Move to next question after a short delay regardless of answer
-    setTimeout(() => {
-      if (currentStep < HUNT_QUESTIONS.length - 1) {
-        setCurrentStep(prev => prev + 1);
-        setSelectedOption(null);
-        setShowHint(false);
-        setIsCorrect(null);
-      } else {
+      // Mission Failed immediately on wrong answer
+      setTimeout(() => {
+        setIsMissionFailed(true);
         setIsFinished(true);
-      }
-    }, 1000);
+      }, 1000);
+    }
   };
 
   const navLinks = [
@@ -980,6 +987,23 @@ export default function App() {
                     )}
                   </AnimatePresence>
                 </div>
+              ) : isMissionFailed ? (
+                <div className="p-12 text-center relative overflow-hidden">
+                  <div className="w-20 h-20 bg-red-500/20 border-2 border-red-500/50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-red-500/20 relative z-10">
+                    <ShieldAlert size={40} className="text-red-500" />
+                  </div>
+                  <h3 className="text-3xl font-black text-white mb-2 relative z-10">Mission Failed! 🦁</h3>
+                  <p className="text-purple-200 mb-8 leading-relaxed relative z-10">
+                    One wrong move and the hunt is over. Our beloved JT doesn't like mistakes! Try again to claim your rewards.
+                  </p>
+                  
+                  <button 
+                    onClick={startHunt}
+                    className="w-full bg-gradient-to-r from-red-500 to-orange-600 text-white py-4 rounded-2xl font-bold shadow-xl relative z-10 hover:scale-[1.02] transition-transform"
+                  >
+                    Try Again
+                  </button>
+                </div>
               ) : (
                 <div className="p-12 text-center relative overflow-hidden">
                   {/* Lion Background */}
@@ -995,9 +1019,7 @@ export default function App() {
                     <span className="text-2xl font-black text-purple-400">Result: {correctCount} / {HUNT_QUESTIONS.length}</span>
                   </div>
                   <p className="text-purple-200 mb-6 leading-relaxed relative z-10">
-                    {correctCount === HUNT_QUESTIONS.length 
-                      ? "Perfect! You're a true Verse expert. Claim your reward below!" 
-                      : `Good effort! You got ${correctCount} out of ${HUNT_QUESTIONS.length} correct. Claim your score below!`}
+                    Perfect! You're a true Verse expert. Claim your reward below!
                   </p>
                   
                   <div className="mb-8 relative z-10">
