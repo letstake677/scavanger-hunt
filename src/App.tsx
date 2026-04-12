@@ -323,15 +323,15 @@ export default function App() {
     const username = user?.username || 'Hunter';
     const gender = user?.avatarGender || 'male';
     
-    // Using valid Dicebear Avataaars topType identifiers
-    const topType = gender === 'male' 
-      ? 'noHair,shortHairTheCaesar,shortHairTheCaesarSidePart,shortHairShortFlat,shortHairShortRound,shortHairSides,shortHairDreads01,shortHairDreads02,shortHairFrizzle,shortHairShaggyMullet'
-      : 'longHairBigHair,longHairBob,longHairBun,longHairCurly,longHairCurvy,longHairDreads,longHairFrida,longHairFro,longHairFroBand,longHairNotTooLong,longHairShavedSides,longHairMiaWallace,longHairStraight,longHairStraight2,longHairStraightStrand';
+    if (gender === 'male') {
+      // User requested specific male avatar image
+      return 'https://i.ibb.co/Tqx0y7W5/avatar.png'; // Attempting direct link format
+    }
     
-    const facialHair = gender === 'male' ? 'beardLight,beardMajestic,beardMedium,moustaches,moustachesFancy' : '';
-    const facialHairProb = gender === 'male' ? 40 : 0;
+    // Using valid Dicebear Avataaars topType identifiers for female
+    const topType = 'longHairBigHair,longHairBob,longHairBun,longHairCurly,longHairCurvy,longHairDreads,longHairFrida,longHairFro,longHairFroBand,longHairNotTooLong,longHairShavedSides,longHairMiaWallace,longHairStraight,longHairStraight2,longHairStraightStrand';
     
-    return `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}&topType=${topType}&facialHair=${facialHair}&facialHairProbability=${facialHairProb}`;
+    return `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}&topType=${topType}&facialHairProbability=0`;
   };
 
   const navLinks = [
@@ -899,6 +899,7 @@ export default function App() {
                       src={getAvatarUrl(leaderboard[1])} 
                       alt="" 
                       className="w-full h-full object-cover" 
+                      onError={(e) => (e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${leaderboard[1].username}&topType=shortHairTheCaesar`)}
                     />
                   </div>
                   <h3 className="text-xl font-black text-white mb-1 truncate">{leaderboard[1].username}</h3>
@@ -930,6 +931,7 @@ export default function App() {
                       src={getAvatarUrl(leaderboard[0])} 
                       alt="" 
                       className="w-full h-full object-cover" 
+                      onError={(e) => (e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${leaderboard[0].username}&topType=shortHairTheCaesar`)}
                     />
                   </div>
                   <h3 className="text-2xl font-black text-white mb-1 truncate">{leaderboard[0].username}</h3>
@@ -964,6 +966,7 @@ export default function App() {
                       src={getAvatarUrl(leaderboard[2])} 
                       alt="" 
                       className="w-full h-full object-cover" 
+                      onError={(e) => (e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${leaderboard[2].username}&topType=shortHairTheCaesar`)}
                     />
                   </div>
                   <h3 className="text-xl font-black text-white mb-1 truncate">{leaderboard[2].username}</h3>
@@ -1014,6 +1017,7 @@ export default function App() {
                             src={getAvatarUrl(user)} 
                             alt="" 
                             className="w-full h-full object-cover" 
+                            onError={(e) => (e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}&topType=shortHairTheCaesar`)}
                           />
                         </div>
                         <div className="flex flex-col">
