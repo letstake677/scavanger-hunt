@@ -43,11 +43,21 @@ const initDb = async () => {
         address VARCHAR(255) UNIQUE,
         username VARCHAR(255) NOT NULL,
         profile_pic TEXT,
+        avatar_gender VARCHAR(10) DEFAULT 'male',
         score INTEGER DEFAULT 0,
         completed_hunts INTEGER DEFAULT 0,
         has_completed_initial_hunt BOOLEAN DEFAULT FALSE,
         last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+    `);
+    // Add column if it doesn't exist (for existing databases)
+    await pool.query(`
+      DO $$ 
+      BEGIN 
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='avatar_gender') THEN
+          ALTER TABLE users ADD COLUMN avatar_gender VARCHAR(10) DEFAULT 'male';
+        END IF;
+      END $$;
     `);
     console.log('PostgreSQL table initialized');
   } catch (err) {
@@ -82,6 +92,7 @@ app.get('/api/user/:address', async (req, res) => {
       address: user.address,
       username: user.username,
       profilePic: user.profile_pic,
+      avatarGender: user.avatar_gender,
       score: user.score,
       completedHunts: user.completed_hunts,
       hasCompletedInitialHunt: user.has_completed_initial_hunt,
@@ -101,6 +112,7 @@ app.get('/api/leaderboard', async (req, res) => {
       address: user.address,
       username: user.username,
       profilePic: user.profile_pic,
+      avatarGender: user.avatar_gender,
       score: user.score,
       completedHunts: user.completed_hunts,
       hasCompletedInitialHunt: user.has_completed_initial_hunt,
@@ -114,7 +126,7 @@ app.get('/api/leaderboard', async (req, res) => {
 });
 
 app.post('/api/user/update-profile', async (req, res) => {
-  const { address, username, profilePic } = req.body;
+  const { address, username, profilePic, avatarGender } = req.body;
   
   try {
     if (!address) {
@@ -124,23 +136,25 @@ app.post('/api/user/update-profile', async (req, res) => {
     const normalizedAddress = address.toLowerCase();
     
     const query = `
-      INSERT INTO users (address, username, profile_pic, score, completed_hunts, has_completed_initial_hunt, last_updated)
-      VALUES ($1, $2, $3, 0, 0, FALSE, CURRENT_TIMESTAMP)
+      INSERT INTO users (address, username, profile_pic, avatar_gender, score, completed_hunts, has_completed_initial_hunt, last_updated)
+      VALUES ($1, $2, $3, $4, 0, 0, FALSE, CURRENT_TIMESTAMP)
       ON CONFLICT (address) 
       DO UPDATE SET 
         username = EXCLUDED.username,
         profile_pic = EXCLUDED.profile_pic,
+        avatar_gender = EXCLUDED.avatar_gender,
         last_updated = CURRENT_TIMESTAMP
       RETURNING *;
     `;
     
-    const result = await pool.query(query, [normalizedAddress, username, profilePic]);
+    const result = await pool.query(query, [normalizedAddress, username, profilePic, avatarGender || 'male']);
     const user = result.rows[0];
     
     res.json({
       address: user.address,
       username: user.username,
       profilePic: user.profile_pic,
+      avatarGender: user.avatar_gender,
       score: user.score,
       completedHunts: user.completed_hunts,
       hasCompletedInitialHunt: user.has_completed_initial_hunt,

@@ -80,6 +80,7 @@ export default function App() {
   const [userScore, setUserScore] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [avatarGender, setAvatarGender] = useState<'male' | 'female'>('male');
 
   const getBadge = (score: number) => {
     if (score >= 1000) return { icon: <Crown size={14} />, label: 'Master', color: 'text-yellow-400', bg: 'bg-yellow-400/10', border: 'border-yellow-400/20' };
@@ -148,6 +149,7 @@ export default function App() {
         setHasCompleted(data.hasCompletedInitialHunt);
         if (data.username) setUsername(data.username);
         if (data.score !== undefined) setUserScore(data.score);
+        if (data.avatarGender) setAvatarGender(data.avatarGender);
       }
     } catch (err) {
       console.error('Failed to fetch user status:', err);
@@ -224,13 +226,15 @@ export default function App() {
         body: JSON.stringify({
           address,
           username: newUsername.trim(),
-          profilePic: newProfilePic.trim()
+          profilePic: newProfilePic.trim(),
+          avatarGender
         })
       });
       
       if (response.ok) {
         const updatedUser = await response.json();
         setUsername(updatedUser.username);
+        if (updatedUser.avatarGender) setAvatarGender(updatedUser.avatarGender);
         setIsProfileModalOpen(false);
         playSound(SOUNDS.success);
         fetchLeaderboard();
@@ -299,6 +303,12 @@ export default function App() {
         setIsFinished(true);
       }, 1000);
     }
+  };
+
+  const getAvatarUrl = (user: any) => {
+    if (user.profilePic) return user.profilePic;
+    const style = user.avatarGender === 'female' ? 'avataaars-neutral' : 'avataaars';
+    return `https://api.dicebear.com/7.x/${style}/svg?seed=${user.username}`;
   };
 
   const navLinks = [
@@ -860,9 +870,9 @@ export default function App() {
                   <Medal className="text-slate-900 w-6 h-6" />
                 </div>
                 <div className="relative z-10">
-                  <div className="w-24 h-24 mx-auto mb-6 rounded-3xl overflow-hidden border-4 border-slate-400/20 shadow-inner bg-slate-400/10">
+                <div className="w-24 h-24 mx-auto mb-6 rounded-3xl overflow-hidden border-4 border-slate-400/20 shadow-inner bg-slate-400/10">
                     <img 
-                      src={leaderboard[1].profilePic || `https://api.dicebear.com/7.x/avataaars/svg?seed=${leaderboard[1].username}`} 
+                      src={getAvatarUrl(leaderboard[1])} 
                       alt="" 
                       className="w-full h-full object-cover" 
                     />
@@ -892,7 +902,7 @@ export default function App() {
                 <div className="relative z-10">
                   <div className="w-32 h-32 mx-auto mb-6 rounded-[2rem] overflow-hidden border-4 border-yellow-400/40 shadow-2xl bg-yellow-400/10">
                     <img 
-                      src={leaderboard[0].profilePic || `https://api.dicebear.com/7.x/avataaars/svg?seed=${leaderboard[0].username}`} 
+                      src={getAvatarUrl(leaderboard[0])} 
                       alt="" 
                       className="w-full h-full object-cover" 
                     />
@@ -925,7 +935,7 @@ export default function App() {
                 <div className="relative z-10">
                   <div className="w-24 h-24 mx-auto mb-6 rounded-3xl overflow-hidden border-4 border-amber-700/20 shadow-inner bg-amber-700/10">
                     <img 
-                      src={leaderboard[2].profilePic || `https://api.dicebear.com/7.x/avataaars/svg?seed=${leaderboard[2].username}`} 
+                      src={getAvatarUrl(leaderboard[2])} 
                       alt="" 
                       className="w-full h-full object-cover" 
                     />
@@ -974,7 +984,7 @@ export default function App() {
                       <div className="flex items-center gap-4 text-left">
                         <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 overflow-hidden shrink-0">
                           <img 
-                            src={user.profilePic || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} 
+                            src={getAvatarUrl(user)} 
                             alt="" 
                             className="w-full h-full object-cover" 
                           />
@@ -1216,11 +1226,39 @@ export default function App() {
                   <p className="text-xs text-gray-500 mt-1">Provide a direct link to an image (ImgBB, etc.)</p>
                 </div>
 
-                {newProfilePic && (
+                {!newProfilePic && (
+                  <div>
+                    <label className="block text-sm font-medium text-purple-300 mb-2">Avatar Style</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        onClick={() => setAvatarGender('male')}
+                        className={`flex items-center justify-center gap-2 py-2.5 rounded-xl border transition-all ${
+                          avatarGender === 'male' 
+                            ? 'bg-purple-500/20 border-purple-500 text-white' 
+                            : 'bg-white/5 border-white/10 text-purple-300 hover:bg-white/10'
+                        }`}
+                      >
+                        <User size={16} /> Male
+                      </button>
+                      <button
+                        onClick={() => setAvatarGender('female')}
+                        className={`flex items-center justify-center gap-2 py-2.5 rounded-xl border transition-all ${
+                          avatarGender === 'female' 
+                            ? 'bg-purple-500/20 border-purple-500 text-white' 
+                            : 'bg-white/5 border-white/10 text-purple-300 hover:bg-white/10'
+                        }`}
+                      >
+                        <User size={16} className="rotate-180" /> Female
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {(newProfilePic || !newProfilePic) && (
                   <div className="flex justify-center py-2">
                     <div className="w-20 h-20 rounded-full border-2 border-purple-500/50 overflow-hidden bg-gray-800">
                       <img 
-                        src={newProfilePic} 
+                        src={newProfilePic || getAvatarUrl({ username: newUsername || username, avatarGender })} 
                         alt="Preview" 
                         className="w-full h-full object-cover"
                         onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/150?text=Invalid+URL')}
