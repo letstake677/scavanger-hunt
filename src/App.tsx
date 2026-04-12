@@ -28,8 +28,8 @@ const HUNT_QUESTIONS = [
   },
   {
     question: "When does the campaign end?",
-    options: ["April 10", "April 12", "April 13, 00:00 UTC", "April 15"],
-    answer: "April 13, 00:00 UTC",
+    options: ["April 12", "April 15", "April 17, 00:00 UTC", "April 20"],
+    answer: "April 17, 00:00 UTC",
     hint: "Check the deadline ",
     hintLink: "https://t.me/GetVerse/177601/514123"
   },
@@ -97,7 +97,7 @@ export default function App() {
 
   // Countdown Timer Logic
   useEffect(() => {
-    const targetDate = new Date('2026-04-13T00:00:00Z').getTime();
+    const targetDate = new Date('2026-04-17T00:00:00Z').getTime();
 
     const interval = setInterval(() => {
       const now = new Date().getTime();
@@ -860,12 +860,12 @@ export default function App() {
                   <Medal className="text-slate-900 w-6 h-6" />
                 </div>
                 <div className="relative z-10">
-                  <div className="w-24 h-24 mx-auto mb-6 rounded-3xl overflow-hidden border-4 border-slate-400/20 shadow-inner">
-                    {leaderboard[1].profilePic ? (
-                      <img src={leaderboard[1].profilePic} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full bg-slate-400/10 flex items-center justify-center text-slate-400 text-3xl font-black">2</div>
-                    )}
+                  <div className="w-24 h-24 mx-auto mb-6 rounded-3xl overflow-hidden border-4 border-slate-400/20 shadow-inner bg-slate-400/10">
+                    <img 
+                      src={leaderboard[1].profilePic || `https://api.dicebear.com/7.x/avataaars/svg?seed=${leaderboard[1].username}`} 
+                      alt="" 
+                      className="w-full h-full object-cover" 
+                    />
                   </div>
                   <h3 className="text-xl font-black text-white mb-1 truncate">{leaderboard[1].username}</h3>
                   <div className="flex justify-center mb-3">
@@ -890,12 +890,12 @@ export default function App() {
                   <Crown className="text-yellow-900 w-8 h-8" />
                 </div>
                 <div className="relative z-10">
-                  <div className="w-32 h-32 mx-auto mb-6 rounded-[2rem] overflow-hidden border-4 border-yellow-400/40 shadow-2xl">
-                    {leaderboard[0].profilePic ? (
-                      <img src={leaderboard[0].profilePic} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full bg-yellow-400/10 flex items-center justify-center text-yellow-400 text-4xl font-black">1</div>
-                    )}
+                  <div className="w-32 h-32 mx-auto mb-6 rounded-[2rem] overflow-hidden border-4 border-yellow-400/40 shadow-2xl bg-yellow-400/10">
+                    <img 
+                      src={leaderboard[0].profilePic || `https://api.dicebear.com/7.x/avataaars/svg?seed=${leaderboard[0].username}`} 
+                      alt="" 
+                      className="w-full h-full object-cover" 
+                    />
                   </div>
                   <h3 className="text-2xl font-black text-white mb-1 truncate">{leaderboard[0].username}</h3>
                   <div className="flex justify-center mb-4">
@@ -923,12 +923,12 @@ export default function App() {
                   <Medal className="text-amber-100 w-6 h-6" />
                 </div>
                 <div className="relative z-10">
-                  <div className="w-24 h-24 mx-auto mb-6 rounded-3xl overflow-hidden border-4 border-amber-700/20 shadow-inner">
-                    {leaderboard[2].profilePic ? (
-                      <img src={leaderboard[2].profilePic} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full bg-amber-700/10 flex items-center justify-center text-amber-700 text-3xl font-black">3</div>
-                    )}
+                  <div className="w-24 h-24 mx-auto mb-6 rounded-3xl overflow-hidden border-4 border-amber-700/20 shadow-inner bg-amber-700/10">
+                    <img 
+                      src={leaderboard[2].profilePic || `https://api.dicebear.com/7.x/avataaars/svg?seed=${leaderboard[2].username}`} 
+                      alt="" 
+                      className="w-full h-full object-cover" 
+                    />
                   </div>
                   <h3 className="text-xl font-black text-white mb-1 truncate">{leaderboard[2].username}</h3>
                   <div className="flex justify-center mb-3">
@@ -973,13 +973,11 @@ export default function App() {
                       </div>
                       <div className="flex items-center gap-4 text-left">
                         <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 overflow-hidden shrink-0">
-                          {user.profilePic ? (
-                            <img src={user.profilePic} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-purple-400 font-bold">
-                              {user.username.charAt(0)}
-                            </div>
-                          )}
+                          <img 
+                            src={user.profilePic || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} 
+                            alt="" 
+                            className="w-full h-full object-cover" 
+                          />
                         </div>
                         <div className="flex flex-col">
                           <span className="text-white font-bold text-lg group-hover:translate-x-1 transition-transform">{user.username}</span>
