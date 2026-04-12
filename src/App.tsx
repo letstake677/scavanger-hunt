@@ -76,6 +76,7 @@ export default function App() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [newUsername, setNewUsername] = useState('');
   const [newProfilePic, setNewProfilePic] = useState('');
+  const [newAvatarGender, setNewAvatarGender] = useState<'male' | 'female'>('male');
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [userScore, setUserScore] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
@@ -147,9 +148,18 @@ export default function App() {
       if (res.ok) {
         const data = await res.json();
         setHasCompleted(data.hasCompletedInitialHunt);
-        if (data.username) setUsername(data.username);
+        if (data.username) {
+          setUsername(data.username);
+          setNewUsername(data.username);
+        }
         if (data.score !== undefined) setUserScore(data.score);
-        if (data.avatarGender) setAvatarGender(data.avatarGender);
+        if (data.avatarGender) {
+          setAvatarGender(data.avatarGender);
+          setNewAvatarGender(data.avatarGender);
+        }
+        if (data.profilePic) {
+          setNewProfilePic(data.profilePic);
+        }
       }
     } catch (err) {
       console.error('Failed to fetch user status:', err);
@@ -227,14 +237,17 @@ export default function App() {
           address,
           username: newUsername.trim(),
           profilePic: newProfilePic.trim(),
-          avatarGender
+          avatarGender: newAvatarGender
         })
       });
       
       if (response.ok) {
         const updatedUser = await response.json();
         setUsername(updatedUser.username);
-        if (updatedUser.avatarGender) setAvatarGender(updatedUser.avatarGender);
+        if (updatedUser.avatarGender) {
+          setAvatarGender(updatedUser.avatarGender);
+          setNewAvatarGender(updatedUser.avatarGender);
+        }
         setIsProfileModalOpen(false);
         playSound(SOUNDS.success);
         fetchLeaderboard();
@@ -306,9 +319,16 @@ export default function App() {
   };
 
   const getAvatarUrl = (user: any) => {
-    if (user.profilePic) return user.profilePic;
-    const style = user.avatarGender === 'female' ? 'avataaars-neutral' : 'avataaars';
-    return `https://api.dicebear.com/7.x/${style}/svg?seed=${user.username}`;
+    if (user && user.profilePic) return user.profilePic;
+    const username = user?.username || 'Hunter';
+    const gender = user?.avatarGender || 'male';
+    
+    // Using specific topType to distinguish gender in Avataaars style
+    const topType = gender === 'female' 
+      ? 'longHair,bob,curly,curvy,dreads,frida,fro,froBand' 
+      : 'shortHair,frizzle,shaggy,shaggyMullet,noHair,hat,turban';
+    
+    return `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}&topType=${topType}`;
   };
 
   const navLinks = [
@@ -872,6 +892,7 @@ export default function App() {
                 <div className="relative z-10">
                 <div className="w-24 h-24 mx-auto mb-6 rounded-3xl overflow-hidden border-4 border-slate-400/20 shadow-inner bg-slate-400/10">
                     <img 
+                      key={`${leaderboard[1].address}-${leaderboard[1].avatarGender}`}
                       src={getAvatarUrl(leaderboard[1])} 
                       alt="" 
                       className="w-full h-full object-cover" 
@@ -902,6 +923,7 @@ export default function App() {
                 <div className="relative z-10">
                   <div className="w-32 h-32 mx-auto mb-6 rounded-[2rem] overflow-hidden border-4 border-yellow-400/40 shadow-2xl bg-yellow-400/10">
                     <img 
+                      key={`${leaderboard[0].address}-${leaderboard[0].avatarGender}`}
                       src={getAvatarUrl(leaderboard[0])} 
                       alt="" 
                       className="w-full h-full object-cover" 
@@ -935,6 +957,7 @@ export default function App() {
                 <div className="relative z-10">
                   <div className="w-24 h-24 mx-auto mb-6 rounded-3xl overflow-hidden border-4 border-amber-700/20 shadow-inner bg-amber-700/10">
                     <img 
+                      key={`${leaderboard[2].address}-${leaderboard[2].avatarGender}`}
                       src={getAvatarUrl(leaderboard[2])} 
                       alt="" 
                       className="w-full h-full object-cover" 
@@ -984,6 +1007,7 @@ export default function App() {
                       <div className="flex items-center gap-4 text-left">
                         <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 overflow-hidden shrink-0">
                           <img 
+                            key={`${user.address}-${user.avatarGender}`}
                             src={getAvatarUrl(user)} 
                             alt="" 
                             className="w-full h-full object-cover" 
@@ -1231,24 +1255,24 @@ export default function App() {
                     <label className="block text-sm font-medium text-purple-300 mb-2">Avatar Style</label>
                     <div className="grid grid-cols-2 gap-3">
                       <button
-                        onClick={() => setAvatarGender('male')}
+                        onClick={() => setNewAvatarGender('male')}
                         className={`flex items-center justify-center gap-2 py-2.5 rounded-xl border transition-all ${
-                          avatarGender === 'male' 
-                            ? 'bg-purple-500/20 border-purple-500 text-white' 
-                            : 'bg-white/5 border-white/10 text-purple-300 hover:bg-white/10'
+                          newAvatarGender === 'male' 
+                            ? 'bg-blue-500/20 border-blue-500 text-white' 
+                            : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'
                         }`}
                       >
-                        <User size={16} /> Male
+                        <User size={16} className="text-blue-400" /> Male
                       </button>
                       <button
-                        onClick={() => setAvatarGender('female')}
+                        onClick={() => setNewAvatarGender('female')}
                         className={`flex items-center justify-center gap-2 py-2.5 rounded-xl border transition-all ${
-                          avatarGender === 'female' 
-                            ? 'bg-purple-500/20 border-purple-500 text-white' 
-                            : 'bg-white/5 border-white/10 text-purple-300 hover:bg-white/10'
+                          newAvatarGender === 'female' 
+                            ? 'bg-pink-500/20 border-pink-500 text-white' 
+                            : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'
                         }`}
                       >
-                        <User size={16} className="rotate-180" /> Female
+                        <User size={16} className="text-pink-400" /> Female
                       </button>
                     </div>
                   </div>
@@ -1258,7 +1282,7 @@ export default function App() {
                   <div className="flex justify-center py-2">
                     <div className="w-20 h-20 rounded-full border-2 border-purple-500/50 overflow-hidden bg-gray-800">
                       <img 
-                        src={newProfilePic || getAvatarUrl({ username: newUsername || username, avatarGender })} 
+                        src={newProfilePic || getAvatarUrl({ username: newUsername || username, avatarGender: newAvatarGender })} 
                         alt="Preview" 
                         className="w-full h-full object-cover"
                         onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/150?text=Invalid+URL')}
