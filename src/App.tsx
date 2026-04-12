@@ -81,6 +81,13 @@ export default function App() {
   const [isMuted, setIsMuted] = useState(false);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
+  const getBadge = (score: number) => {
+    if (score >= 1000) return { icon: <Crown size={14} />, label: 'Master', color: 'text-yellow-400', bg: 'bg-yellow-400/10', border: 'border-yellow-400/20' };
+    if (score >= 500) return { icon: <Zap size={14} />, label: 'Elite', color: 'text-purple-400', bg: 'bg-purple-400/10', border: 'border-purple-400/20' };
+    if (score >= 250) return { icon: <Star size={14} />, label: 'Tracker', color: 'text-blue-400', bg: 'bg-blue-400/10', border: 'border-blue-400/20' };
+    return { icon: <Medal size={14} />, label: 'Novice', color: 'text-slate-400', bg: 'bg-slate-400/10', border: 'border-slate-400/20' };
+  };
+
   const playSound = (soundUrl: string) => {
     if (isMuted) return;
     const audio = new Audio(soundUrl);
@@ -849,19 +856,27 @@ export default function App() {
                 transition={{ delay: 0.1 }}
                 className="order-2 md:order-1 bg-[#1a0a3e]/80 backdrop-blur-xl border border-slate-400/30 p-8 rounded-[2rem] shadow-2xl relative group hover:-translate-y-2 transition-all duration-500"
               >
-                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-slate-400 rounded-2xl flex items-center justify-center shadow-lg shadow-slate-900/50 rotate-12 group-hover:rotate-0 transition-transform">
+                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-slate-400 rounded-2xl flex items-center justify-center shadow-lg shadow-slate-900/50 rotate-12 group-hover:rotate-0 transition-transform z-20">
                   <Medal className="text-slate-900 w-6 h-6" />
                 </div>
-                <div className="w-24 h-24 mx-auto mb-6 rounded-3xl overflow-hidden border-4 border-slate-400/20 shadow-inner">
-                  {leaderboard[1].profilePic ? (
-                    <img src={leaderboard[1].profilePic} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full bg-slate-400/10 flex items-center justify-center text-slate-400 text-3xl font-black">2</div>
-                  )}
+                <div className="relative z-10">
+                  <div className="w-24 h-24 mx-auto mb-6 rounded-3xl overflow-hidden border-4 border-slate-400/20 shadow-inner">
+                    {leaderboard[1].profilePic ? (
+                      <img src={leaderboard[1].profilePic} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-slate-400/10 flex items-center justify-center text-slate-400 text-3xl font-black">2</div>
+                    )}
+                  </div>
+                  <h3 className="text-xl font-black text-white mb-1 truncate">{leaderboard[1].username}</h3>
+                  <div className="flex justify-center mb-3">
+                    <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full border ${getBadge(leaderboard[1].score).bg} ${getBadge(leaderboard[1].score).border} ${getBadge(leaderboard[1].score).color}`}>
+                      {getBadge(leaderboard[1].score).icon}
+                      <span className="text-[10px] font-black uppercase tracking-widest">{getBadge(leaderboard[1].score).label}</span>
+                    </div>
+                  </div>
+                  <div className="text-slate-400 font-mono text-2xl font-black">{leaderboard[1].score.toLocaleString()}</div>
+                  <div className="text-[10px] text-slate-500 uppercase font-black tracking-widest mt-1">Points</div>
                 </div>
-                <h3 className="text-xl font-black text-white mb-1 truncate">{leaderboard[1].username}</h3>
-                <div className="text-slate-400 font-mono text-2xl font-black">{leaderboard[1].score.toLocaleString()}</div>
-                <div className="text-[10px] text-slate-500 uppercase font-black tracking-widest mt-1">Points</div>
               </motion.div>
 
               {/* 1st Place */}
@@ -871,19 +886,29 @@ export default function App() {
                 viewport={{ once: true }}
                 className="order-1 md:order-2 bg-gradient-to-b from-yellow-400/20 to-[#1a0a3e]/90 backdrop-blur-xl border-2 border-yellow-400/50 p-10 rounded-[2.5rem] shadow-[0_0_50px_rgba(250,204,21,0.2)] relative group hover:-translate-y-4 transition-all duration-500 z-10"
               >
-                <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-16 h-16 bg-yellow-400 rounded-3xl flex items-center justify-center shadow-xl shadow-yellow-900/50 -rotate-12 group-hover:rotate-0 transition-transform">
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-16 h-16 bg-yellow-400 rounded-3xl flex items-center justify-center shadow-xl shadow-yellow-900/50 -rotate-12 group-hover:rotate-0 transition-transform z-20">
                   <Crown className="text-yellow-900 w-8 h-8" />
                 </div>
-                <div className="w-32 h-32 mx-auto mb-6 rounded-[2rem] overflow-hidden border-4 border-yellow-400/40 shadow-2xl">
-                  {leaderboard[0].profilePic ? (
-                    <img src={leaderboard[0].profilePic} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full bg-yellow-400/10 flex items-center justify-center text-yellow-400 text-4xl font-black">1</div>
-                  )}
+                <div className="relative z-10">
+                  <div className="w-32 h-32 mx-auto mb-6 rounded-[2rem] overflow-hidden border-4 border-yellow-400/40 shadow-2xl">
+                    {leaderboard[0].profilePic ? (
+                      <img src={leaderboard[0].profilePic} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-yellow-400/10 flex items-center justify-center text-yellow-400 text-4xl font-black">1</div>
+                    )}
+                  </div>
+                  <h3 className="text-2xl font-black text-white mb-1 truncate">{leaderboard[0].username}</h3>
+                  <div className="flex justify-center mb-4">
+                    <div className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full border ${getBadge(leaderboard[0].score).bg} ${getBadge(leaderboard[0].score).border} ${getBadge(leaderboard[0].score).color} shadow-[0_0_15px_rgba(250,204,21,0.3)]`}>
+                      {getBadge(leaderboard[0].score).icon}
+                      <span className="text-xs font-black uppercase tracking-widest">{getBadge(leaderboard[0].score).label}</span>
+                    </div>
+                  </div>
+                  <div className="text-yellow-400 font-mono text-4xl font-black">{leaderboard[0].score.toLocaleString()}</div>
+                  <div className="text-xs text-yellow-500/60 uppercase font-black tracking-[0.2em] mt-2">Supreme Hunter</div>
                 </div>
-                <h3 className="text-2xl font-black text-white mb-1 truncate">{leaderboard[0].username}</h3>
-                <div className="text-yellow-400 font-mono text-4xl font-black">{leaderboard[0].score.toLocaleString()}</div>
-                <div className="text-xs text-yellow-500/60 uppercase font-black tracking-[0.2em] mt-2">Supreme Hunter</div>
+                {/* Glow Effect */}
+                <div className="absolute inset-0 bg-yellow-400/5 blur-3xl rounded-full -z-10 group-hover:bg-yellow-400/10 transition-colors" />
               </motion.div>
 
               {/* 3rd Place */}
@@ -894,19 +919,27 @@ export default function App() {
                 transition={{ delay: 0.2 }}
                 className="order-3 bg-[#1a0a3e]/80 backdrop-blur-xl border border-amber-700/30 p-8 rounded-[2rem] shadow-2xl relative group hover:-translate-y-2 transition-all duration-500"
               >
-                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-amber-700 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-900/50 -rotate-6 group-hover:rotate-0 transition-transform">
+                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-amber-700 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-900/50 -rotate-6 group-hover:rotate-0 transition-transform z-20">
                   <Medal className="text-amber-100 w-6 h-6" />
                 </div>
-                <div className="w-24 h-24 mx-auto mb-6 rounded-3xl overflow-hidden border-4 border-amber-700/20 shadow-inner">
-                  {leaderboard[2].profilePic ? (
-                    <img src={leaderboard[2].profilePic} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full bg-amber-700/10 flex items-center justify-center text-amber-700 text-3xl font-black">3</div>
-                  )}
+                <div className="relative z-10">
+                  <div className="w-24 h-24 mx-auto mb-6 rounded-3xl overflow-hidden border-4 border-amber-700/20 shadow-inner">
+                    {leaderboard[2].profilePic ? (
+                      <img src={leaderboard[2].profilePic} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-amber-700/10 flex items-center justify-center text-amber-700 text-3xl font-black">3</div>
+                    )}
+                  </div>
+                  <h3 className="text-xl font-black text-white mb-1 truncate">{leaderboard[2].username}</h3>
+                  <div className="flex justify-center mb-3">
+                    <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full border ${getBadge(leaderboard[2].score).bg} ${getBadge(leaderboard[2].score).border} ${getBadge(leaderboard[2].score).color}`}>
+                      {getBadge(leaderboard[2].score).icon}
+                      <span className="text-[10px] font-black uppercase tracking-widest">{getBadge(leaderboard[2].score).label}</span>
+                    </div>
+                  </div>
+                  <div className="text-amber-600 font-mono text-2xl font-black">{leaderboard[2].score.toLocaleString()}</div>
+                  <div className="text-[10px] text-amber-700 uppercase font-black tracking-widest mt-1">Points</div>
                 </div>
-                <h3 className="text-xl font-black text-white mb-1 truncate">{leaderboard[2].username}</h3>
-                <div className="text-amber-600 font-mono text-2xl font-black">{leaderboard[2].score.toLocaleString()}</div>
-                <div className="text-[10px] text-amber-700 uppercase font-black tracking-widest mt-1">Points</div>
               </motion.div>
             </div>
           )}
@@ -923,6 +956,7 @@ export default function App() {
               {leaderboard.length > 0 ? (
                 leaderboard.slice(leaderboard.length >= 3 ? 3 : 0).map((user, index) => {
                   const actualRank = (leaderboard.length >= 3 ? 3 : 0) + index + 1;
+                  const isCurrentUser = address && user.address.toLowerCase() === address.toLowerCase();
                   return (
                     <motion.div 
                       key={user.address} 
@@ -930,7 +964,9 @@ export default function App() {
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true }}
                       transition={{ delay: index * 0.05 }}
-                      className="grid grid-cols-[60px_1fr_120px] items-center px-8 py-5 hover:bg-white/5 transition-colors group cursor-default"
+                      className={`grid grid-cols-[60px_1fr_120px] items-center px-8 py-5 transition-colors group cursor-default ${
+                        isCurrentUser ? 'bg-purple-500/20 border-y border-purple-500/30' : 'hover:bg-white/5'
+                      }`}
                     >
                       <div className="font-mono text-lg font-black text-purple-500/50 group-hover:text-purple-400 transition-colors">
                         #{actualRank.toString().padStart(2, '0')}
@@ -945,7 +981,13 @@ export default function App() {
                             </div>
                           )}
                         </div>
-                        <span className="text-white font-bold text-lg group-hover:translate-x-1 transition-transform">{user.username}</span>
+                        <div className="flex flex-col">
+                          <span className="text-white font-bold text-lg group-hover:translate-x-1 transition-transform">{user.username}</span>
+                          <div className={`flex items-center gap-1 mt-0.5 px-2 py-0.5 rounded-md border w-fit ${getBadge(user.score).bg} ${getBadge(user.score).border} ${getBadge(user.score).color}`}>
+                            {getBadge(user.score).icon}
+                            <span className="text-[8px] font-black uppercase tracking-widest">{getBadge(user.score).label}</span>
+                          </div>
+                        </div>
                       </div>
                       <div className="text-right">
                         <div className="text-white font-mono text-xl font-black">{user.score.toLocaleString()}</div>
