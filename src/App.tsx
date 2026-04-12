@@ -323,10 +323,10 @@ export default function App() {
     const username = user?.username || 'Hunter';
     const gender = user?.avatarGender || 'male';
     
-    // Using specific topType to distinguish gender in Avataaars style
-    const topType = gender === 'female' 
-      ? 'longHair,bob,curly,curvy,dreads,frida,fro,froBand' 
-      : 'shortHair,frizzle,shaggy,shaggyMullet,noHair,hat,turban';
+    // Correcting the mapping: male gets short hair, female gets long hair
+    const topType = gender === 'male' 
+      ? 'shortHair,frizzle,shaggy,shaggyMullet,noHair,hat,turban'
+      : 'longHair,bob,curly,curvy,dreads,frida,fro,froBand';
     
     return `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}&topType=${topType}`;
   };
