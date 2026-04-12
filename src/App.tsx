@@ -207,6 +207,12 @@ export default function App() {
   };
 
   const startHunt = () => {
+    if (!username || username.trim() === '') {
+      setNewUsername('');
+      setIsProfileModalOpen(true);
+      setStatusMessage({ type: 'error', text: 'Please set a username in your profile before starting the hunt!' });
+      return;
+    }
     setIsHuntActive(true);
     setCurrentStep(0);
     setCorrectCount(0);
@@ -1018,21 +1024,10 @@ export default function App() {
                   <div className="inline-block bg-purple-500/20 border border-purple-500/30 px-6 py-2 rounded-full mb-6 relative z-10">
                     <span className="text-2xl font-black text-purple-400">Result: {correctCount} / {HUNT_QUESTIONS.length}</span>
                   </div>
-                  <p className="text-purple-200 mb-6 leading-relaxed relative z-10">
+                  <p className="text-purple-200 mb-8 leading-relaxed relative z-10">
                     Perfect! You're a true Verse expert. Claim your reward below!
                   </p>
                   
-                  <div className="mb-8 relative z-10">
-                    <label className="block text-purple-300 text-sm font-bold mb-2 text-left px-2">Set your Hunter Name</label>
-                    <input 
-                      type="text" 
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      placeholder={address?.slice(0, 6) || "Enter name"}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-purple-500 transition-colors"
-                    />
-                  </div>
-
                   <button 
                     onClick={() => {
                       if (!hasSaved) {
@@ -1075,7 +1070,7 @@ export default function App() {
                 <div className="p-2 bg-purple-500/20 rounded-lg">
                   <User className="w-6 h-6 text-purple-400" />
                 </div>
-                <h2 className="text-2xl font-bold text-white">Edit Profile</h2>
+                <h2 className="text-2xl font-bold text-white">{username ? 'Edit Profile' : 'Set Your Hunter Name'}</h2>
               </div>
 
               <div className="space-y-4">
