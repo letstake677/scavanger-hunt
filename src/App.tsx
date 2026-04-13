@@ -226,7 +226,14 @@ export default function App() {
   };
 
   const updateProfile = async () => {
-    if (!address || !newUsername.trim()) return;
+    if (!newUsername.trim()) {
+      setStatusMessage({ type: 'error', text: 'Please enter a username.' });
+      return;
+    }
+    if (!address) {
+      setStatusMessage({ type: 'error', text: 'Wallet not connected. Please connect your wallet first.' });
+      return;
+    }
     
     setIsUpdatingProfile(true);
     try {
@@ -236,7 +243,7 @@ export default function App() {
         body: JSON.stringify({
           address,
           username: newUsername.trim(),
-          profilePic: newProfilePic.trim(),
+          profilePic: newProfilePic ? newProfilePic.trim() : '',
           avatarGender: newAvatarGender
         })
       });
@@ -251,9 +258,14 @@ export default function App() {
         setIsProfileModalOpen(false);
         playSound(SOUNDS.success);
         fetchLeaderboard();
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to update profile:', errorData);
+        setStatusMessage({ type: 'error', text: `Failed to save profile: ${errorData.error || 'Unknown error'}` });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating profile:', error);
+      setStatusMessage({ type: 'error', text: `Error: ${error.message}` });
     } finally {
       setIsUpdatingProfile(false);
     }

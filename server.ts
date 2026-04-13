@@ -147,7 +147,12 @@ app.post('/api/user/update-profile', async (req, res) => {
       RETURNING *;
     `;
     
-    const result = await pool.query(query, [normalizedAddress, username, profilePic, avatarGender || 'male']);
+    const result = await pool.query(query, [
+      normalizedAddress, 
+      username, 
+      profilePic !== undefined ? profilePic : null, 
+      avatarGender || 'male'
+    ]);
     const user = result.rows[0];
     
     res.json({
