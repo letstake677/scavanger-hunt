@@ -899,6 +899,7 @@ export default function App() {
                       src={getAvatarUrl(leaderboard[1])} 
                       alt="" 
                       className="w-full h-full object-cover" 
+                      referrerPolicy="no-referrer"
                       onError={(e) => (e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${leaderboard[1].username}&topType=shortHairTheCaesar`)}
                     />
                   </div>
@@ -931,6 +932,7 @@ export default function App() {
                       src={getAvatarUrl(leaderboard[0])} 
                       alt="" 
                       className="w-full h-full object-cover" 
+                      referrerPolicy="no-referrer"
                       onError={(e) => (e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${leaderboard[0].username}&topType=shortHairTheCaesar`)}
                     />
                   </div>
@@ -966,6 +968,7 @@ export default function App() {
                       src={getAvatarUrl(leaderboard[2])} 
                       alt="" 
                       className="w-full h-full object-cover" 
+                      referrerPolicy="no-referrer"
                       onError={(e) => (e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${leaderboard[2].username}&topType=shortHairTheCaesar`)}
                     />
                   </div>
@@ -1017,6 +1020,7 @@ export default function App() {
                             src={getAvatarUrl(user)} 
                             alt="" 
                             className="w-full h-full object-cover" 
+                            referrerPolicy="no-referrer"
                             onError={(e) => (e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}&topType=shortHairTheCaesar`)}
                           />
                         </div>
@@ -1246,57 +1250,42 @@ export default function App() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-purple-300 mb-1">Profile Picture URL</label>
-                  <input 
-                    type="text"
-                    value={newProfilePic}
-                    onChange={(e) => setNewProfilePic(e.target.value)}
-                    placeholder="https://example.com/image.png"
-                    className="w-full bg-gray-800 border border-purple-500/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Provide a direct link to an image (ImgBB, etc.)</p>
+                  <label className="block text-sm font-medium text-purple-300 mb-2">Avatar Style</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={() => setNewAvatarGender('male')}
+                      className={`flex items-center justify-center gap-2 py-2.5 rounded-xl border transition-all ${
+                        newAvatarGender === 'male' 
+                          ? 'bg-blue-500/20 border-blue-500 text-white' 
+                          : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'
+                      }`}
+                    >
+                      <User size={16} className="text-blue-400" /> Male
+                    </button>
+                    <button
+                      onClick={() => setNewAvatarGender('female')}
+                      className={`flex items-center justify-center gap-2 py-2.5 rounded-xl border transition-all ${
+                        newAvatarGender === 'female' 
+                          ? 'bg-pink-500/20 border-pink-500 text-white' 
+                          : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'
+                      }`}
+                    >
+                      <User size={16} className="text-pink-400" /> Female
+                    </button>
+                  </div>
                 </div>
 
-                {!newProfilePic && (
-                  <div>
-                    <label className="block text-sm font-medium text-purple-300 mb-2">Avatar Style</label>
-                    <div className="grid grid-cols-2 gap-3">
-                      <button
-                        onClick={() => setNewAvatarGender('male')}
-                        className={`flex items-center justify-center gap-2 py-2.5 rounded-xl border transition-all ${
-                          newAvatarGender === 'male' 
-                            ? 'bg-blue-500/20 border-blue-500 text-white' 
-                            : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'
-                        }`}
-                      >
-                        <User size={16} className="text-blue-400" /> Male
-                      </button>
-                      <button
-                        onClick={() => setNewAvatarGender('female')}
-                        className={`flex items-center justify-center gap-2 py-2.5 rounded-xl border transition-all ${
-                          newAvatarGender === 'female' 
-                            ? 'bg-pink-500/20 border-pink-500 text-white' 
-                            : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'
-                        }`}
-                      >
-                        <User size={16} className="text-pink-400" /> Female
-                      </button>
-                    </div>
+                <div className="flex justify-center py-2">
+                  <div className="w-20 h-20 rounded-full border-2 border-purple-500/50 overflow-hidden bg-gray-800">
+                    <img 
+                      src={getAvatarUrl({ username: newUsername || username, avatarGender: newAvatarGender })} 
+                      alt="Preview" 
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                      onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/150?text=Invalid+URL')}
+                    />
                   </div>
-                )}
-
-                {(newProfilePic || !newProfilePic) && (
-                  <div className="flex justify-center py-2">
-                    <div className="w-20 h-20 rounded-full border-2 border-purple-500/50 overflow-hidden bg-gray-800">
-                      <img 
-                        src={newProfilePic || getAvatarUrl({ username: newUsername || username, avatarGender: newAvatarGender })} 
-                        alt="Preview" 
-                        className="w-full h-full object-cover"
-                        onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/150?text=Invalid+URL')}
-                      />
-                    </div>
-                  </div>
-                )}
+                </div>
 
                 {/* Badges Section */}
                 <div className="bg-white/5 rounded-xl p-4 border border-white/10">
