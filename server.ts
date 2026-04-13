@@ -50,12 +50,18 @@ const initDb = async () => {
         last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
-    // Add column if it doesn't exist (for existing databases)
+    // Add columns if they don't exist (for existing databases)
     await pool.query(`
       DO $$ 
       BEGIN 
         IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='avatar_gender') THEN
           ALTER TABLE users ADD COLUMN avatar_gender VARCHAR(10) DEFAULT 'male';
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='profile_pic') THEN
+          ALTER TABLE users ADD COLUMN profile_pic TEXT;
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='has_completed_initial_hunt') THEN
+          ALTER TABLE users ADD COLUMN has_completed_initial_hunt BOOLEAN DEFAULT FALSE;
         END IF;
       END $$;
     `);
